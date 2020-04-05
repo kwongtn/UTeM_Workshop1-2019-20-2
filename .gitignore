@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# Ignore
+src/client/.vs/
+src/client/out/
