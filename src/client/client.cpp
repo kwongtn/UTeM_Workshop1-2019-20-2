@@ -3,44 +3,52 @@
 
 #include "utils.h"
 
+// Function declaration from other files
+void userMenu();
+void memberMenu();
+void additionalInformation();
 
 void mainMenu() {
-	const int MENU_SIZE = 5;
 	unsigned short int selection = 0;
 
 MenuStart:
-	std::string menuEntries[] = { "User", "Member", "Activity", "Attendance", "Additional Information" };
+	json menuEntries = { "Member", "Activity", "Attendance", "User", "Additional Information" };
 
-	system("cls");
+	clearScreen();
 
+	heading();
 	cout << "Welcome. Please select your scope of action." << endl;
 
 	printLine();
 
-	for (int i = 0; i < MENU_SIZE; i++) {
-		cout << left << i + 1 << "\t" << menuEntries[i] << endl;
+
+	for (int i = 0; i < menuEntries.size(); i++) {
+		cout << left << i + 1 << "\t" << returnString(menuEntries[i]) << endl;
 	}
 	cout << left << 10 << "\t" << "Exit" << endl;
+	
 
 	try {
 		cin >> selection;
-		if (cin.fail() || selection > MENU_SIZE || selection < 0) {
-			throw "Error";
+		if (cin.fail() || selection > menuEntries.size() || selection < 0) {
+			if (selection != 10) {
+				throw "Error";
+			}
 		}
 
 		switch (selection)
 		{
 		case 1:
-			// TODO: User menu
+			memberMenu();
 			break;
 		case 2:
-			// TODO: Member menu
-			break;
-		case 3:
 			// TODO: Activity Menu
 			break;
-		case 4:
+		case 3:
 			//TODO: Attendance Menu
+			break;
+		case 4:
+			userMenu();
 			break;
 		case 5:
 			additionalInformation();
@@ -55,10 +63,11 @@ MenuStart:
 		}
 	}
 	catch (...) {
-		cout << "Please input a valid selection. \n";
+		cout << "\nPlease input a valid selection. \n";
 		cin.clear();
 	}
 
+	cout << endl;
 	system("pause");
 	goto MenuStart;
 }
@@ -68,7 +77,6 @@ int main() {
 
 	mainMenu();
 
-	/*
 	try {
 		using namespace ::mysqlx;
 
@@ -110,7 +118,6 @@ int main() {
 		cout << "ERROR: " << err << endl;
 	}
 
-	*/
 
 }
 
