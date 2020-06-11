@@ -34,3 +34,5 @@
 # Ignore
 src/client/.vs/
 src/client/out/
+src/client/x64/
+src/libs/
