@@ -1,0 +1,24 @@
+# Pull the latest mySQL image
+FROM mysql:latest
+ARG MYSQL_ROOT_PASSWORD=password
+
+# Maintainer and email
+LABEL Maintainer="KwongTN <tungnan5636@gmail.com>"
+
+# Set Timezone = Asia/Kuala_Lumpur
+RUN unlink /etc/localtime
+RUN ln -s /usr/share/zoneinfo/Asia/Kuala_Lumpur /etc/localtime
+
+# Set work directory
+WORKDIR /usr/src/app
+
+# Copy db file 
+COPY dataDefinition.sql .
+
+# Run command to create the database
+RUN mysql --user="root" --password="password" --execute="source ./dataDefinition.sql"
+
+# Expose ports
+EXPOSE 3306 33060
+
+

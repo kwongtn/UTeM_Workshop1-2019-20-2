@@ -1,0 +1,1 @@
+docker run --name=mysql-test --env="MYSQL_ROOT_PASSWORD=password" -e TZ=Asia/Kuala_Lumpur --expose 3306 --expose 33060 -p 8688:3306 -p 8689:33060 --detach mysql
