@@ -1,27 +1,74 @@
 // client.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
-#include<iostream>
-#include <mysqlx/xdevapi.h>
+#include "utils.h"
 
-using ::std::cout;
-using ::std::endl;
 
-const std::string DB_ADDRESS = "127.0.0.1";
-const int DB_PORT = 8689;
-const std::string DB_LOGIN = "root";
-const std::string DB_PASS = "password";
-const std::string SCHEMA = "ATT_MGMT";
+void mainMenu() {
+	const int MENU_SIZE = 5;
+	unsigned short int selection = 0;
+
+MenuStart:
+	std::string menuEntries[] = { "User", "Member", "Activity", "Attendance", "Additional Information" };
+
+	system("cls");
+
+	cout << "Welcome. Please select your scope of action." << endl;
+
+	printLine();
+
+	for (int i = 0; i < MENU_SIZE; i++) {
+		cout << left << i + 1 << "\t" << menuEntries[i] << endl;
+	}
+	cout << left << 10 << "\t" << "Exit" << endl;
+
+	try {
+		cin >> selection;
+		if (cin.fail() || selection > MENU_SIZE || selection < 0) {
+			throw "Error";
+		}
+
+		switch (selection)
+		{
+		case 1:
+			// TODO: User menu
+			break;
+		case 2:
+			// TODO: Member menu
+			break;
+		case 3:
+			// TODO: Activity Menu
+			break;
+		case 4:
+			//TODO: Attendance Menu
+			break;
+		case 5:
+			additionalInformation();
+			break;
+		case 10:
+			exit(0);
+			break;
+		default:
+			cout << "Default pathway";
+			throw "Invalid Selection";
+			break;
+		}
+	}
+	catch (...) {
+		cout << "Please input a valid selection. \n";
+		cin.clear();
+	}
+
+	system("pause");
+	goto MenuStart;
+}
 
 int main() {
-	if (__cplusplus == 201703L) std::cout << "C++17\n";
-	else if (__cplusplus == 201402L) std::cout << "C++14\n";
-	else if (__cplusplus == 201103L) std::cout << "C++11\n";
-	else if (__cplusplus == 199711L) std::cout << "C++98\n";
-	else std::cout << "pre-standard C++\n";
 
-	std::cout << __cplusplus << std::endl;
 
+	mainMenu();
+
+	/*
 	try {
 		using namespace ::mysqlx;
 
@@ -62,6 +109,8 @@ int main() {
 	{
 		cout << "ERROR: " << err << endl;
 	}
+
+	*/
 
 }
 
