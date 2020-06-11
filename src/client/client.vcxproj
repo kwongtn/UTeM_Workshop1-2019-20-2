@@ -152,6 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="client.cpp" />
+    <ClCompile Include="additionalInformation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="parameters.h" />
