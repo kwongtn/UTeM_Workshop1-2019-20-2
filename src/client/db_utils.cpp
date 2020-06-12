@@ -1,6 +1,6 @@
-#include <mysqlx/xdevapi.h>
-#include "parameters.h"
 #include "utils.h"
+#include "parameters.h"
+#include <mysqlx/xdevapi.h>
 
 using namespace ::mysqlx;
 
@@ -68,19 +68,23 @@ Table getTable(std::string tableName) {
 }
 
 /**
- *@param {json} dbColumns - dbColumns in a specific JSON format
+ * @param {json} dbColumns - dbColumns in a specific JSON format
+ * @param {std::string} determining - value determining whether to include the value in that index. Colapsible to bool.
+ * @param {std::string} myOutput - output key
 */
-std::string columnNamesGen(json dbColumns) {
+std::string columnNamesGen(json dbColumns, std::string determining, std::string myOutput, std::string wrapper ) {
 	std::string preparedStatement;
 	unsigned short int loop = 0;
 	for (int i = 0; i < dbColumns.size(); i++) {
-		if (dbColumns[i]["selected"]) {
+		if (dbColumns[i][determining]) {
 			if (loop > 0) {
 				preparedStatement += ", ";
 
 			}
 
-			preparedStatement += dbColumns[i]["columnName"];
+			preparedStatement += wrapper;
+			preparedStatement += dbColumns[i][myOutput];
+			preparedStatement += wrapper;
 			loop++;
 		}
 	}
@@ -89,6 +93,7 @@ std::string columnNamesGen(json dbColumns) {
 }
 
 
+/*
 bool decider() {
 	bool k = true;
 	char selection;
@@ -116,3 +121,4 @@ bool decider() {
 	}
 
 }
+*/
