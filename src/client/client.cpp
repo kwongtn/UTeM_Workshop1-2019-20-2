@@ -3,10 +3,13 @@
 
 #include "utils.h"
 
+using namespace ::mysqlx;
+
 // Function declaration from other files
 void userMenu();
 void memberMenu();
 void additionalInformation();
+Session getSessionDb();
 
 void mainMenu() {
 	unsigned short int selection = 0;
@@ -26,7 +29,7 @@ MenuStart:
 		cout << left << i + 1 << "\t" << returnString(menuEntries[i]) << endl;
 	}
 	cout << left << 10 << "\t" << "Exit" << endl;
-	
+
 
 	try {
 		cin >> selection;
@@ -72,8 +75,47 @@ MenuStart:
 	goto MenuStart;
 }
 
+bool login() {
+	system("cls");
+	std::string login = "";
+	std::string password = "";
+	cout << "Please enter your login credentials: " << endl << endl;
+
+	cout << "Login\t\t: ";
+	getline(cin, login);
+
+	cout << "Password\t: ";
+	getline(cin, password);
+
+	std::string preparedStatement = "";
+	preparedStatement += "SELECT a.engName FROM MEMBER a INNER JOIN USER b ON a.memberID=b.memberID WHERE ";
+	preparedStatement += "a.matrixNo=\'" + login + "\' AND b.pw=\'" + password + "\'";
+
+	cout << preparedStatement << endl;
+	try {
+
+		Session sess = getSessionDb();
+		
+		auto myRows = sess.sql(preparedStatement).execute();
+
+		if (myRows.count() != 1) {
+			cout << "Login error. Please try again." << endl;
+			return false;
+		}
+		else {
+			return true;
+		}
+			
+	}
+	catch (const mysqlx::Error& err)
+	{
+		cout << "ERROR: " << err << endl;
+	}
+}
+
 int main() {
 
+	while (!login()) {}
 
 	mainMenu();
 
