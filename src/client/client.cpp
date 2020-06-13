@@ -91,7 +91,7 @@ bool login() {
 	preparedStatement += "SELECT a.engName FROM MEMBER a INNER JOIN USER b ON a.memberID=b.memberID WHERE ";
 	preparedStatement += "a.matrixNo=\'" + login + "\' AND b.pw=\'" + password + "\'";
 
-	cout << preparedStatement << endl;
+	cout << "Verifying your login credentials, please wait." << endl;
 	try {
 
 		Session sess = getSessionDb();
@@ -100,6 +100,7 @@ bool login() {
 
 		if (myRows.count() != 1) {
 			cout << "Login error. Please try again." << endl;
+			system("pause");
 			return false;
 		}
 		else {
