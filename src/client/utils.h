@@ -3,6 +3,8 @@
 #include <iomanip>
 #include <cstring>
 #include <array>
+#include <vector>
+#include <sstream>
 #include <mysqlx/xdevapi.h>
 #include "../libs/json.hpp"
 
@@ -15,7 +17,7 @@ using ::std::endl;
 
 using json = nlohmann::json;
 
-inline void printLine(char character = '=', int length = 20) {
+inline void printLine(char character = '=', int length = 30) {
 	for (int i = 0; i < length; i++) {
 		std::cout << character;
 	}
@@ -32,8 +34,13 @@ inline void clearScreen() {
 	system("cls");
 }
 
-inline void heading() {
+inline void heading(std::string additional = "") {
+	system("cls");
 	cout << "Club Attendance Management System" << endl << endl;
+
+	if (additional != "") {
+		cout << additional << endl;
+	}
 }
 
 inline std::string returnString(json i) {
@@ -45,14 +52,25 @@ inline void menuGen(json rowNames, std::string myOutput) {
 	for (int i = 0; i < rowNames.size(); i++) {
 		cout << i << "\t" << returnString(rowNames[i][myOutput]) << endl;
 	}
+	cout << endl;
+}
+
+inline void menuGen(json rowNames, std::string myOutput, std::string determiner) {
+	for (int i = 0; i < rowNames.size(); i++) {
+		if (rowNames[i][determiner]) {
+			cout << i << "\t" << returnString(rowNames[i][myOutput]) << endl;
+
+		}
+	}
+	cout << endl;
 }
 
 
-inline bool decider() {
+inline bool decider(std::string custString = "Your selection (y / n): ") {
 	bool x = true;
 	char selection;
 	while (true) {
-		cout << "Your selection (y / n): ";
+		cout << custString;
 		try {
 			cin >> selection;
 			if (selection == 'y' || selection == 'Y') {
@@ -71,11 +89,24 @@ inline bool decider() {
 			}
 		}
 		catch (...) {
-			cout << selection;
 			cout << "Please enter a valid character." << endl;
 			pause();
 		}
 	}
 	return x;
 
+}
+
+// Whether an array of values contain a key
+inline bool jsonContains(json myJSON, std::string element) {
+	if (myJSON.size() == 0) {
+		return false;
+	}
+	for (int i = 0; i < myJSON.size(); i++) {
+		if (myJSON[i].contains(element)) {
+			return true;
+		}
+	}
+
+	return false;
 }
