@@ -26,7 +26,10 @@ json memberDataStruct{
 		{"input", false},
 		{"compulsoryInput", false},
 		{"selected", false},
-		{"searchable", false}
+		{"searchable", false},
+		{"showDuringDeletion", true},
+		{"outputSizing", 30},
+		{"updatable", false}
 	},
 	{
 		{"columnName", "engName"},
@@ -34,7 +37,10 @@ json memberDataStruct{
 		{"input", true},
 		{"compulsoryInput", true},
 		{"selected", true},
-		{"searchable", true}
+		{"searchable", true},
+		{"showDuringDeletion", true},
+		{"outputSizing", 30},
+		{"updatable", true}
 	},
 	{
 		{"columnName", "matrixNo"},
@@ -42,23 +48,32 @@ json memberDataStruct{
 		{"input", true},
 		{"compulsoryInput", true},
 		{"selected", true},
-		{"searchable", true}
-	},
+		{"searchable", true},
+		{"showDuringDeletion", true},
+		{"outputSizing", 15},
+		{"updatable", true}
+	},/*
 	{
 		{"columnName", "email"},
 		{"columnDescription", "E-Mail"},
 		{"input", true},
 		{"compulsoryInput", false},
 		{"selected", false},
-		{"searchable", false}
-	},
+		{"searchable", false},
+		{"showDuringDeletion", true},
+		{"outputSizing", 30},
+		{"updatable", true}
+	},*/
 	{
 		{"columnName", "hostel"},
 		{"columnDescription", "Hostel"},
 		{"input", true},
 		{"compulsoryInput", false},
 		{"selected", true},
-		{"searchable", true}
+		{"searchable", true},
+		{"showDuringDeletion", true},
+		{"outputSizing", 10},
+		{"updatable", true}
 	},
 	{
 		{"columnName", "signupTime"},
@@ -66,7 +81,10 @@ json memberDataStruct{
 		{"input", false},
 		{"compulsoryInput", false},
 		{"selected", false},
-		{"searchable", false}
+		{"searchable", false},
+		{"showDuringDeletion", false},
+		{"outputSizing", 30},
+		{"updatable", false}
 	},
 	{
 		{"columnName", "updateTime"},
@@ -74,11 +92,15 @@ json memberDataStruct{
 		{"input", false},
 		{"compulsoryInput", false},
 		{"selected", false},
-		{"searchable", false}
+		{"searchable", false},
+		{"showDuringDeletion", false},
+		{"outputSizing", 30},
+		{"updatable", false}
 	}
 };
 
 json memberTempDataStore{};
+json memberTempDataStore2{};
 
 // Search entry
 void searchEntry() {
