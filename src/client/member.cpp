@@ -106,7 +106,7 @@ json memberTempDataStore2{};
 void searchEntry() {
 	system("cls");
 	memberTempDataStore.clear();
-	cin.ignore();
+	cin.ignore(1000, '\n');
 
 	// Copies searchable items to memberTempDataStore
 	int tempCounter = 0;
@@ -126,14 +126,13 @@ void searchEntry() {
 	while (y) {
 
 		menuGen(memberTempDataStore, "colDesc");
-		cout << memberTempDataStore.flatten() << endl;
 
 		bool x = true;
 		int selection;
 		while (x) {
-			cout << "Please select the column you would like to search by: ";
+			cout << "\nPlease select the column you would like to search by: ";
 			try {
-				
+
 				if (!(cin >> selection) || selection > tempCounter || selection < 0) {
 					throw "Error";
 				}
@@ -143,7 +142,7 @@ void searchEntry() {
 			}
 			catch (...) {
 				cout << "Please input a valid selection." << endl;
-				system("pause");
+				pause();
 			}
 
 		}
@@ -151,40 +150,49 @@ void searchEntry() {
 		cout << "Selected " << memberTempDataStore[selection]["colDesc"] << endl;
 
 		// To get search criteria
-		cout << "Please input the search criteria. ";
+		cout << "Please input the search criteria. You may use SQL-based wildcards like \"%\"\n>";
 
 		std::string criteria = "";
-		cin.ignore();
+		cin.ignore(1000, '\n');
 		std::getline(cin, criteria);
 
-		cout << "Criteria: SELECT " << memberTempDataStore[selection]["colDesc"] << " WHERE " << criteria << endl;
+		criteriaStringUser += memberTempDataStore[selection]["colDesc"];
+		criteriaStringUser += " is \"" + criteria + "\" \n";
 
-		if (counter > 0) {
-			preparedStatement += " AND ";
-		}
-		preparedStatement += returnString(memberTempDataStore[selection]["colName"]) + " like \'" + criteria + "\'";
+		cout << "Criteria: SELECT WHERE " << criteriaStringUser;
+
+
+		criteriaStringSys += returnString(memberTempDataStore[selection]["colName"]) + " like \'" + criteria + "\'";
 
 		counter++;
 
 		cout << "Would you like to add criteria? " << endl;
-		y = decider();
-	}
 
-	cout << "\nCurrent search statement:" << endl;
-	cout << preparedStatement << endl;
+	} while (decider());
+
+	cout << "\nCurrent search statement: " << endl;
+	cout << criteriaStringUser << endl;
+
+	preparedStatement += criteriaStringSys;
 
 	try {
 		Session sess = getSessionDb();
 
 		auto myRows = sess.sql(preparedStatement).execute();
 
+		int rowCount = 0;
 		for (Row row : myRows.fetchAll()) {
 			for (int i = 0; i < row.colCount(); i++) {
-				cout << left << std::setw(50) << row[i] << "\t";
+				cout << left << std::setw(memberTempDataStore[i]["outputSizing"]) << row[i] << "\t";
 			}
 			cout << endl;
+
+			rowCount++;
 		}
 
+		cout << endl;
+
+		cout << "Returned " << rowCount << " results." << endl;
 	}
 	catch (const mysqlx::Error& err)
 	{
@@ -194,7 +202,7 @@ void searchEntry() {
 		cout << "Unknown Error";
 	}
 
-	system("pause");
+	pause();
 
 
 
@@ -203,8 +211,10 @@ void searchEntry() {
 // Create entry
 void addEntry() {
 	memberTempDataStore.clear();
-	cin.ignore();
+	cin.ignore(1000, '\n');
 
+	heading("Member Creation");
+	printLine();
 	cout << "Please input the following data to facilitate for member creation." << endl;
 
 	int tempCounter = 0;
@@ -216,6 +226,7 @@ void addEntry() {
 			bool x = true;
 			while (x) {
 				cout << returnString(memberDataStruct[i]["columnDescription"]) << "\t: ";
+				cin.ignore(1000, '\n');
 				std::getline(cin, temp);
 				if (memberDataStruct[i]["compulsoryInput"] && temp == "") {
 					cout << "Please input a value.";
@@ -265,12 +276,27 @@ void addEntry() {
 		cout << "Unknown Error";
 	}
 
-	system("pause");
 }
 
+	pause();
 // List entry
 void listEntries() {
+	heading("Listing Member entries.");
+	printLine();
 
+	// Print table headings
+	int lineSize = 0;
+	for (int i = 0; i < memberDataStruct.size(); i++) {
+		if (memberDataStruct[i]["searchable"]) {
+		cout << left << std::setw(memberDataStruct[i]["outputSizing"]) << returnString(memberDataStruct[i]["columnDescription"]);
+		lineSize += memberDataStruct[i]["outputSizing"];
+
+		}
+	}
+
+	printLine(lineSize);
+
+	// Print table content
 	try {
 		Session sess = getSessionDb();
 
@@ -281,10 +307,14 @@ void listEntries() {
 
 		for (Row row : myRows.fetchAll()) {
 			for (int i = 0; i < row.colCount(); i++) {
-				cout << left << std::setw(50) << row[i] << "\t";
+				cout << left << std::setw(memberDataStruct[i]["outputSizing"]) << row[i] << "\t";
 			}
 			cout << endl;
 		}
+
+		cout << endl;
+
+		cout << "Returned " << myRows.count() << " results." << endl;
 
 	}
 	catch (const mysqlx::Error& err)
@@ -295,7 +325,8 @@ void listEntries() {
 		cout << "Unknown Error";
 	}
 
-	system("pause");
+	cout << endl;
+	pause();
 }
 
 // Update entry
@@ -314,15 +345,15 @@ MenuStart:
 
 	clearScreen();
 
-	heading();
-	cout << "MEMBER" << endl;
-
+	// Show menu top
+	heading("MEMBER Management Menu");
 	printLine();
 
-
+	// Show menu selection
 	for (int i = 0; i < menuEntries.size(); i++) {
 		cout << left << i + 1 << "\t" << returnString(menuEntries[i]) << endl;
 	}
+	cout << endl;
 	cout << left << 10 << "\t" << "Back to Main Menu" << endl << endl;
 
 
@@ -362,7 +393,7 @@ MenuStart:
 	}
 	catch (...) {
 		cout << "\nPlease input a valid selection. \n";
-		system("pause");
+		pause();
 		cin.clear();
 	}
 
