@@ -92,33 +92,3 @@ std::string columnNamesGen(json dbColumns, std::string determining, std::string 
 	return preparedStatement;
 }
 
-
-/*
-bool decider() {
-	bool k = true;
-	char selection;
-	while (k) {
-		cout << "Your selection (y / n): ";
-		try {
-			cin >> selection;
-			if (cin.fail() || selection != 'y' || selection != 'Y' || selection != 'n' || selection != 'N') {
-				throw;
-			}
-			else if (selection == 'y' || selection == 'Y') {
-				return true;
-			}
-			else if (selection == 'n' || selection == 'N') {
-				return false;
-			}
-			else {
-				throw;
-			}
-		}
-		catch (...) {
-			cout << "Please enter a valid character." << endl;
-			pause();
-		}
-	}
-
-}
-*/

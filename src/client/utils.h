@@ -39,3 +39,43 @@ inline void heading() {
 inline std::string returnString(json i) {
 	return i;
 }
+
+
+inline void menuGen(json rowNames, std::string myOutput) {
+	for (int i = 0; i < rowNames.size(); i++) {
+		cout << i << "\t" << returnString(rowNames[i][myOutput]) << endl;
+	}
+}
+
+
+inline bool decider() {
+	bool x = true;
+	char selection;
+	while (true) {
+		cout << "Your selection (y / n): ";
+		try {
+			cin >> selection;
+			if (selection == 'y' || selection == 'Y') {
+				x = true;
+				break;
+			}
+			else if (selection == 'n' || selection == 'N') {
+				x = false;
+				break;
+			}
+			else {
+				throw "Error";
+			}
+			if (cin.fail() || selection != 'y' || selection != 'Y' || selection != 'n' || selection != 'N') {
+				throw "Error";
+			}
+		}
+		catch (...) {
+			cout << selection;
+			cout << "Please enter a valid character." << endl;
+			pause();
+		}
+	}
+	return x;
+
+}
