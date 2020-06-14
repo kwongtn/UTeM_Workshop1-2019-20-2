@@ -7,18 +7,6 @@ Session getSessionDb();
 std::string columnNamesGen(json, std::string, std::string, std::string wrapper = "");
 const std::string thisTableName = "MEMBER";
 
-// Struct Definition for member object type
-struct MEMBER {
-	int memberID; // Primary Key
-	std::string engName;
-	std::string matrixNo;
-	std::string icNo;
-	std::string email;
-	std::string phoneNo;
-	std::string facebookID;
-	std::string hostel;
-};
-
 json memberDataStruct{
 	{
 		{"columnName", "memberID"},
@@ -28,8 +16,9 @@ json memberDataStruct{
 		{"selected", false},
 		{"searchable", false},
 		{"showDuringDeletion", true},
-		{"outputSizing", 30},
-		{"updatable", false}
+		{"outputSizing", 10},
+		{"updatable", false},
+		{"isUnique", true}
 	},
 	{
 		{"columnName", "engName"},
@@ -39,8 +28,9 @@ json memberDataStruct{
 		{"selected", true},
 		{"searchable", true},
 		{"showDuringDeletion", true},
-		{"outputSizing", 30},
-		{"updatable", true}
+		{"outputSizing", 50},
+		{"updatable", true},
+		{"isUnique", false}
 	},
 	{
 		{"columnName", "matrixNo"},
@@ -51,7 +41,8 @@ json memberDataStruct{
 		{"searchable", true},
 		{"showDuringDeletion", true},
 		{"outputSizing", 15},
-		{"updatable", true}
+		{"updatable", true},
+		{"isUnique", true}
 	},/*
 	{
 		{"columnName", "email"},
@@ -62,7 +53,8 @@ json memberDataStruct{
 		{"searchable", false},
 		{"showDuringDeletion", true},
 		{"outputSizing", 30},
-		{"updatable", true}
+		{"updatable", true},
+		{"isUnique", false}
 	},*/
 	{
 		{"columnName", "hostel"},
@@ -73,7 +65,8 @@ json memberDataStruct{
 		{"searchable", true},
 		{"showDuringDeletion", true},
 		{"outputSizing", 10},
-		{"updatable", true}
+		{"updatable", true},
+		{"isUnique", false}
 	},
 	{
 		{"columnName", "signupTime"},
@@ -84,7 +77,8 @@ json memberDataStruct{
 		{"searchable", false},
 		{"showDuringDeletion", false},
 		{"outputSizing", 30},
-		{"updatable", false}
+		{"updatable", false},
+		{"isUnique", false}
 	},
 	{
 		{"columnName", "updateTime"},
@@ -95,7 +89,8 @@ json memberDataStruct{
 		{"searchable", false},
 		{"showDuringDeletion", false},
 		{"outputSizing", 30},
-		{"updatable", false}
+		{"updatable", false},
+		{"isUnique", false}
 	}
 };
 
@@ -106,10 +101,7 @@ json memberTempDataStore2{};
 void searchEntry() {
 	system("cls");
 	memberTempDataStore.clear();
-	cin.ignore(1000, '\n');
 
-	heading("Searching Member Entries.");
-	printLine();
 
 	// Copies searchable items to memberTempDataStore
 	int tempCounter = 0;
@@ -126,11 +118,16 @@ void searchEntry() {
 	std::string preparedStatement = "SELECT " + columnNamesGen(memberDataStruct, "selected", "columnName") + " FROM " + thisTableName + " WHERE ";
 
 	int counter = 0;
-	std::string criteriaStringUser = "SELECT WHERE ";
+	std::string criteriaStringUser = "Criteria: SELECT WHERE ";
 	std::string criteriaStringSys = "";
+	std::vector<std::string> criterias;
+
 	do {
+		heading("Searching Member Entries.");
+		printLine();
 		if (counter > 0) {
-			cout << "Would you like an \'OR\' join towards the previous criteria? Default: \'AND\' join" << endl;
+			cout << "\nCurrent " << criteriaStringUser << endl;
+			cout << "\nWould you like an \'OR\' join towards the previous criteria? Default: \'AND\' join" << endl;
 			if (decider()) {
 				criteriaStringSys += " OR ";
 				criteriaStringUser += " OR ";
@@ -141,15 +138,22 @@ void searchEntry() {
 			}
 		}
 
+		heading("Searching Member Entries.");
+		printLine();
 		menuGen(memberTempDataStore, "colDesc");
+
+		if (counter > 0) {
+			cout << "\nCurrent " << criteriaStringUser << endl;
+
+		}
 
 		bool x = true;
 		int selection;
 		while (x) {
 			cout << "\nPlease select the column you would like to search by: ";
 			try {
-
-				if (!(cin >> selection) || selection > tempCounter || selection < 0) {
+				selection = inputInt();
+				if (selection > tempCounter || selection < 0) {
 					throw "Error";
 				}
 				else {
@@ -163,43 +167,77 @@ void searchEntry() {
 
 		}
 
+		heading("MEMBER: Search Criteria Creation");
+		printLine();
+		if (counter > 0) {
+			cout << "\nCurrent " << criteriaStringUser << endl << endl;
+
+		}
 		cout << "Selected " << memberTempDataStore[selection]["colDesc"] << endl;
 
 		// To get search criteria
-		cout << "Please input the search criteria. You may use SQL-based wildcards like \"%\"\n>";
+		cout << "Please input the search criteria. You may use SQL-based wildcards like \"%\"\n\n> ";
 
 		std::string criteria = "";
-		cin.ignore(1000, '\n');
 		std::getline(cin, criteria);
 
+		criterias.push_back(criteria);
 		criteriaStringUser += memberTempDataStore[selection]["colDesc"];
 		criteriaStringUser += " is \"" + criteria + "\" \n";
 
-		cout << "Criteria: SELECT WHERE " << criteriaStringUser;
+		cout << "\n\n" << criteriaStringUser;
 
 
-		criteriaStringSys += returnString(memberTempDataStore[selection]["colName"]) + " like \'" + criteria + "\'";
+		criteriaStringSys += returnString(memberTempDataStore[selection]["colName"]) + " like ?";
 
 		counter++;
 
-		cout << "Would you like to add criteria? " << endl;
+		cout << "\nWould you like to add criteria? " << endl;
 
 	} while (decider());
 
-	cout << "\nCurrent search statement: " << endl;
+	heading("Search Result");
+	printLine();
+	cout << "Search statement: " << endl;
 	cout << criteriaStringUser << endl;
 
+	pause();
+
 	preparedStatement += criteriaStringSys;
+
+	// Print table headings
+	int lineSize = 0;
+	for (int i = 0; i < memberDataStruct.size(); i++) {
+		if (memberDataStruct[i]["searchable"]) {
+			cout << left << std::setw(memberDataStruct[i]["outputSizing"]) << returnString(memberDataStruct[i]["columnDescription"]);
+
+			memberTempDataStore.push_back(memberDataStruct[i]["outputSizing"]);
+
+			lineSize += memberDataStruct[i]["outputSizing"];
+
+		}
+	}
+
+	cout << endl;
+
+	printLine('=', lineSize);
+
 
 	try {
 		Session sess = getSessionDb();
 
-		auto myRows = sess.sql(preparedStatement).execute();
+		auto mySess = sess.sql(preparedStatement);
+		for (int i = 0; i < criterias.size(); i++) {
+			mySess.bind(criterias[i]);
+		}
+			
+		auto myRows = mySess.execute();
 
+		// Print table content
 		int rowCount = 0;
 		for (Row row : myRows.fetchAll()) {
 			for (int i = 0; i < row.colCount(); i++) {
-				cout << left << std::setw(memberTempDataStore[i]["outputSizing"]) << row[i] << "\t";
+				cout << left << std::setw(memberTempDataStore[i]["outputSizing"]) << row[i];
 			}
 			cout << endl;
 
@@ -227,11 +265,10 @@ void searchEntry() {
 // Create entry
 void addEntry() {
 	memberTempDataStore.clear();
-	cin.ignore(1000, '\n');
 
 	heading("Member Creation");
 	printLine();
-	cout << "Please input the following data to facilitate for member creation." << endl;
+	cout << "Please input the following data to facilitate for member creation.\n* Indicates that entries with that value must be unique." << endl << endl;
 
 	int tempCounter = 0;
 	for (int i = 0; i < memberDataStruct.size(); i++) {
@@ -241,9 +278,13 @@ void addEntry() {
 		if (memberDataStruct[i]["input"]) {
 			bool x = true;
 			while (x) {
-				cout << returnString(memberDataStruct[i]["columnDescription"]) << "\t: ";
-				cin.ignore(1000, '\n');
-				std::getline(cin, temp);
+				std::string currString = returnString(memberDataStruct[i]["columnDescription"]);
+				if (memberDataStruct[i]["isUnique"]) {
+					currString += "*";
+				}
+
+				cout << left << std::setw(30) << currString << "\t: ";
+				getline(cin, temp);
 				if (memberDataStruct[i]["compulsoryInput"] && temp == "") {
 					cout << "Please input a value.";
 				}
@@ -267,8 +308,11 @@ void addEntry() {
 
 	std::string preparedStatement = "INSERT INTO " + thisTableName + " (";
 	preparedStatement += columnNamesGen(memberTempDataStore, "getThis", "colName");
-	preparedStatement += ") VALUES (";
-	preparedStatement += columnNamesGen(memberTempDataStore, "getThis", "colValue", "\'");
+	preparedStatement += ") VALUES (?";
+
+	for (int i = 1; i < memberTempDataStore.size(); i++) {
+		preparedStatement += ", ?";
+	}
 	preparedStatement += ")";
 
 	bool recover = true;
@@ -276,8 +320,14 @@ void addEntry() {
 		try {
 			Session sess = getSessionDb();
 
-			auto myRows = sess.sql(preparedStatement).execute();
-			
+			auto mySess = sess.sql(preparedStatement);
+
+			for (int i = 0; i < memberTempDataStore.size(); i++) {
+				mySess = mySess.bind(returnString(memberTempDataStore[i]["colValue"]));
+			}
+
+			auto myRows = mySess.execute();
+
 			if (myRows.getAffectedItemsCount() > 0) {
 				cout << "\nRecord succesfully added" << endl;
 				break;
@@ -290,12 +340,12 @@ void addEntry() {
 		catch (const mysqlx::Error& err)
 		{
 			cout << "ERROR: " << err << endl;
-			cout << "Do you want to try again?" << endl;
+			cout << "Do you want to try database action again?" << endl;
 			recover = decider();
 		}
 		catch (...) {
 			cout << "Unknown Error";
-			cout << "Do you want to try again?" << endl;
+			cout << "Do you want to try database action again?" << endl;
 			recover = decider();
 		}
 
@@ -306,6 +356,7 @@ void addEntry() {
 
 // List entry
 void listEntries() {
+	memberTempDataStore.clear();
 	heading("Listing Member entries.");
 	printLine();
 
@@ -313,33 +364,40 @@ void listEntries() {
 	int lineSize = 0;
 	for (int i = 0; i < memberDataStruct.size(); i++) {
 		if (memberDataStruct[i]["searchable"]) {
-		cout << left << std::setw(memberDataStruct[i]["outputSizing"]) << returnString(memberDataStruct[i]["columnDescription"]);
-		lineSize += memberDataStruct[i]["outputSizing"];
+			cout << left << std::setw(memberDataStruct[i]["outputSizing"]) << returnString(memberDataStruct[i]["columnDescription"]);
+
+			memberTempDataStore.push_back(memberDataStruct[i]["outputSizing"]);
+
+			lineSize += memberDataStruct[i]["outputSizing"];
 
 		}
 	}
 
-	printLine(lineSize);
+	cout << endl;
+
+	printLine('=', lineSize);
 
 	// Print table content
 	try {
 		Session sess = getSessionDb();
 
-		std::string selection = columnNamesGen(memberDataStruct, "selected", "columnName");
 
-		auto myRows = sess.sql("SELECT " + selection + " FROM " + thisTableName)
+		auto myRows = sess.sql("SELECT " + columnNamesGen(memberDataStruct, "selected", "columnName") + " FROM " + thisTableName)
 			.execute();
 
+		int rowCount = 0;
 		for (Row row : myRows.fetchAll()) {
 			for (int i = 0; i < row.colCount(); i++) {
-				cout << left << std::setw(memberDataStruct[i]["outputSizing"]) << row[i] << "\t";
+				cout << left << std::setw(memberTempDataStore[i]) << row[i];
 			}
 			cout << endl;
+
+			rowCount++;
 		}
 
 		cout << endl;
 
-		cout << "Returned " << myRows.count() << " results." << endl;
+		cout << "Returned " << rowCount << " results." << endl;
 
 	}
 	catch (const mysqlx::Error& err)
@@ -357,7 +415,6 @@ void listEntries() {
 // Update entry
 void updateEntry() {
 	memberTempDataStore.clear();
-	cin.ignore(1000, '\n');
 	system("cls");
 
 	// To ask if the user wants to search for the relavant data
@@ -380,7 +437,6 @@ void updateEntry() {
 			heading("Update Member Entries.");
 			printLine();
 			cout << "Please input member matrix no to update: ";
-			cin.ignore(1000, '\n');
 			getline(cin, matrixNo);
 
 			std::string preparedStatement1 = "SELECT " + columnNamesGen(memberDataStruct, "showDuringDeletion", "columnName") + " FROM " + thisTableName + " WHERE matrixNo=?";
@@ -409,6 +465,10 @@ void updateEntry() {
 			else {
 				cout << "No member with matrix no. " << matrixNo << " found." << endl;
 				cout << "Try again?" << endl;
+
+				if (!decider()) {
+					return;
+				}
 				pause();
 			}
 		}
@@ -441,23 +501,17 @@ void updateEntry() {
 		}
 	}
 
+
 	while (true) {
 		heading("Updating member entry");
 		printLine();
 
 		while (true) {
 		InvalidSelection:
-			if (noOfChanges == memberTempDataStore.size()) {
-				break;
-			}
-
 			menuGen(memberTempDataStore, "colDesc", "notSelected");
-			if (noOfChanges > 0) {
-				cin.ignore();
+			selection = inputInt();
 
-			}
-			cin >> selection;
-
+			// Check if selection was previously selected
 			for (int i = 0; i < selected.size(); i++) {
 				if (selection == selected[i]) {
 					cout << "Please input a valid selection." << endl;
@@ -471,14 +525,13 @@ void updateEntry() {
 
 		std::string newData = "";
 		cout << "Please input the new data for " << memberTempDataStore[selection]["colDesc"] << endl;
-		cin.ignore();
 		getline(cin, newData);
 
 		if (noOfChanges > 0) {
 			preparedStatement2 += ",";
 		}
 
-		preparedStatement2 += returnString(memberTempDataStore[selection]["colName"]) + "=\'" + newData + "\' ";
+		preparedStatement2 += returnString(memberTempDataStore[selection]["colName"]) + "=?";
 
 		// Add changes into json
 		memberTempDataStore2[noOfChanges]["colDesc"] = memberTempDataStore[selection]["colDesc"];
@@ -489,13 +542,17 @@ void updateEntry() {
 
 		noOfChanges++;
 
+		if (noOfChanges >= memberTempDataStore.size()) {
+			break;
+		}
+
 		cout << "Do you want to add more data to update?" << endl;
 
 		if (!decider()) {
 			break;
 		}
 	}
-	preparedStatement2 += " WHERE matrixNo=\'" + matrixNo + "\'";
+	preparedStatement2 += " WHERE matrixNo=?";
 
 	// Show current changes
 	clearScreen();
@@ -510,7 +567,15 @@ void updateEntry() {
 
 	if (decider()) {
 		Session sess = getSessionDb();
-		auto myRows = sess.sql(preparedStatement2).execute();
+		auto mySess = sess.sql(preparedStatement2);
+
+		for (int i = 0; i < memberTempDataStore2.size(); i++) {
+			mySess = mySess.bind(returnString(memberTempDataStore2[i]["colData"]));
+		}
+
+		mySess = mySess.bind(matrixNo);
+
+		auto myRows = mySess.execute();
 
 		cout << endl;
 
@@ -529,7 +594,6 @@ void updateEntry() {
 
 // Delete entry
 void deleteEntry() {
-	cin.ignore();
 	system("cls");
 
 	// To ask if the user wants to search for the relavant data
@@ -552,16 +616,15 @@ void deleteEntry() {
 			heading("Delete Member Entries.");
 			printLine();
 			cout << "Please input member matrix no to delete: ";
-			cin.ignore();
 			getline(cin, matrixNo);
 
 			memberTempDataStore.clear();
 
-			std::string preparedStatement1 = "SELECT " + columnNamesGen(memberDataStruct, "showDuringDeletion", "columnName") + " FROM " + thisTableName + " WHERE matrixNo=\'" + matrixNo + "\'";
+			std::string preparedStatement1 = "SELECT " + columnNamesGen(memberDataStruct, "showDuringDeletion", "columnName") + " FROM " + thisTableName + " WHERE matrixNo=?";
 
 			Session sess = getSessionDb();
 
-			auto myRows = sess.sql(preparedStatement1).execute();
+			auto myRows = sess.sql(preparedStatement1).bind(matrixNo).execute();
 
 			printLine();
 
@@ -594,17 +657,16 @@ void deleteEntry() {
 		cout << "Unknown Error";
 	}
 
-	std::string preparedStatement2 = "DELETE FROM " + thisTableName + " WHERE matrixNo=\'" + matrixNo + "\'";
+	std::string preparedStatement2 = "DELETE FROM " + thisTableName + " WHERE matrixNo=?";
 
 	if (decider()) {
 		Session sess = getSessionDb();
-		cout << preparedStatement2 << endl;
-		auto myRows = sess.sql(preparedStatement2).execute();
+		auto myRows = sess.sql(preparedStatement2).bind(matrixNo).execute();
 
 		cout << endl;
 
 		if (myRows.getAffectedItemsCount() > 0) {
-			cout << "Deletion succesful." << endl;
+			cout << "Deletion succesful. " << myRows.getAffectedItemsCount() << " rows affected." << endl;
 		}
 		else {
 			cout << "There are probably some errors on the way." << endl;
@@ -637,10 +699,11 @@ MenuStart:
 	cout << endl;
 	cout << left << 10 << "\t" << "Back to Main Menu" << endl << endl;
 
-
+	bool toggle = false;
 	try {
-		cin >> selection;
-		if (cin.fail() || selection > menuEntries.size() || selection < 0) {
+		cout << "Please input your selection: " << endl;
+		selection = inputInt(toggle);
+		if (selection > menuEntries.size() || selection < 0) {
 			if (selection != 10) {
 				throw "Error";
 			}
@@ -679,5 +742,6 @@ MenuStart:
 	}
 
 	cout << endl;
+	toggle = !toggle;
 	goto MenuStart;
 }

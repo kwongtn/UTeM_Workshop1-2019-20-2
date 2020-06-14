@@ -35,7 +35,7 @@ void additionalInformation() {
 			cout << "\nDatabase Connection success." << endl;
 		}
 		else {
-			cout << "\nError in database connection. Database name probably having error." << endl;
+			cout << "\nError in database connection. Database probably having error." << endl;
 		}
 
 	}

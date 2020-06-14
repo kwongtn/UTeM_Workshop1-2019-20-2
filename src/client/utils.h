@@ -68,23 +68,23 @@ inline void menuGen(json rowNames, std::string myOutput, std::string determiner)
 
 inline bool decider(std::string custString = "Your selection (y / n): ") {
 	bool x = true;
-	char selection;
+	std::string selection;
 	while (true) {
 		cout << custString;
 		try {
-			cin >> selection;
-			if (selection == 'y' || selection == 'Y') {
+			getline(cin, selection);
+			if (selection == "y" || selection == "Y") {
 				x = true;
 				break;
 			}
-			else if (selection == 'n' || selection == 'N') {
+			else if (selection == "n" || selection == "N") {
 				x = false;
 				break;
 			}
 			else {
 				throw "Error";
 			}
-			if (cin.fail() || selection != 'y' || selection != 'Y' || selection != 'n' || selection != 'N') {
+			if (cin.fail() || selection != "y" || selection != "Y" || selection != "n" || selection != "N") {
 				throw "Error";
 			}
 		}
@@ -109,4 +109,34 @@ inline bool jsonContains(json myJSON, std::string element) {
 	}
 
 	return false;
+}
+
+inline int inputInt(bool cinIgnore = true) {
+	std::string myString = "";
+	int i;
+	while (true) {
+		cin.clear();
+		cout << "\n> ";
+		getline(cin, myString);
+
+		try
+		{
+			i = std::stoi(myString);
+			break;
+		}
+		catch (std::invalid_argument const& e)
+		{
+			cout << "Bad input: std::invalid_argument thrown" << '\n';
+			continue;
+		}
+		catch (std::out_of_range const& e)
+		{
+			cout << "Integer overflow: std::out_of_range thrown" << '\n';
+			continue;
+		}
+
+	}
+
+	return i;
+
 }

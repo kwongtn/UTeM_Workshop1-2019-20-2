@@ -2,6 +2,8 @@
 //
 
 #include "utils.h"
+// #define _WIN32_WINNT 0x0500
+// #include <windows.h>
 
 using namespace ::mysqlx;
 
@@ -28,12 +30,13 @@ MenuStart:
 	for (int i = 0; i < menuEntries.size(); i++) {
 		cout << left << i + 1 << "\t" << returnString(menuEntries[i]) << endl;
 	}
+	cout << endl;
 	cout << left << 10 << "\t" << "Exit" << endl;
 
 
 	try {
-		cin >> selection;
-		if (cin.fail() || selection > menuEntries.size() || selection < 0) {
+		selection = inputInt();
+		if (selection > menuEntries.size() || selection < 0) {
 			if (selection != 10) {
 				throw "Error";
 			}
@@ -71,7 +74,6 @@ MenuStart:
 	}
 
 	cout << endl;
-	system("pause");
 	goto MenuStart;
 }
 
@@ -115,8 +117,14 @@ bool login() {
 }
 
 int main() {
+	/*
+	HWND console = GetConsoleWindow();
+	RECT r;
+	GetWindowRect(console, &r); //stores the console's current dimensions
 
-	while (!login()) {}
+	MoveWindow(console, r.left, r.top, 5000, 500, TRUE); // 800 width, 100 height
+	*/
+	/* while (!login()) {}*/
 
 	mainMenu();
 
