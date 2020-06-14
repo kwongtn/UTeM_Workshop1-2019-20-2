@@ -1,7 +1,11 @@
 #include "utils.h"
 
+using namespace ::mysqlx;
+
 bool testSession();
 bool testDb(std::string);
+Session getSessionDb();
+
 void additionalInformation() {
 	system("cls");
 
@@ -44,4 +48,23 @@ void additionalInformation() {
 		cout << "ERROR: " << err << endl;
 	}
 
+	/*
+	try {
+		auto db = getSessionDb();
+
+		auto myRows = db.sql("SELECT * FROM MEMBER WHERE engName like ?").bind("K%").execute();
+
+		for (Row row : myRows.fetchAll()) {
+			for (int i = 0; i < row.colCount(); i++) {
+				cout << left << row[i] << "\t";
+			}
+			cout << endl;
+		}
+		
+	}
+	catch (const mysqlx::Error& err) {
+		cout << "ERROR " << err << endl;
+	}*/
+
+	pause();
 }

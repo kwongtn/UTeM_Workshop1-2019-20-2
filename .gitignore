@@ -36,3 +36,6 @@ src/client/.vs/
 src/client/out/
 src/client/x64/
 src/libs/
+enc_temp_folder
+misc/private/
+.VSCodeCounter
