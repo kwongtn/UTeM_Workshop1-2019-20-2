@@ -98,7 +98,7 @@ json memberTempDataStore{};
 json memberTempDataStore2{};
 
 // Search entry
-void searchEntry() {
+void memberSearchEntry() {
 	system("cls");
 	memberTempDataStore.clear();
 
@@ -263,7 +263,7 @@ void searchEntry() {
 }
 
 // Create entry
-void addEntry() {
+void memberAddEntry() {
 	memberTempDataStore.clear();
 
 	heading("Member Creation");
@@ -355,7 +355,7 @@ void addEntry() {
 }
 
 // List entry
-void listEntries() {
+void memberListEntries() {
 	memberTempDataStore.clear();
 	heading("Listing Member entries.");
 	printLine();
@@ -382,7 +382,7 @@ void listEntries() {
 		Session sess = getSessionDb();
 
 
-		auto myRows = sess.sql("SELECT " + columnNamesGen(memberDataStruct, "selected", "columnName") + " FROM " + thisTableName)
+		auto myRows = sess.sql("SELECT " + columnNamesGen(memberDataStruct, "selected", "columnName") + " FROM " + thisTableName + " ORDER BY " + returnString(memberDataStruct[selection]["columnName"]))
 			.execute();
 
 		int rowCount = 0;
@@ -413,7 +413,7 @@ void listEntries() {
 }
 
 // Update entry
-void updateEntry() {
+void memberUpdateEntry() {
 	memberTempDataStore.clear();
 	system("cls");
 
@@ -426,7 +426,7 @@ void updateEntry() {
 		if (!decider()) {
 			break;
 		}
-		searchEntry();
+		memberSearchEntry();
 	}
 
 
@@ -593,7 +593,7 @@ void updateEntry() {
 }
 
 // Delete entry
-void deleteEntry() {
+void memberDeleteEntry() {
 	system("cls");
 
 	// To ask if the user wants to search for the relavant data
@@ -605,7 +605,7 @@ void deleteEntry() {
 		if (!decider()) {
 			break;
 		}
-		searchEntry();
+		memberSearchEntry();
 	}
 
 
@@ -712,19 +712,19 @@ MenuStart:
 		switch (selection)
 		{
 		case 1:
-			addEntry();
+			memberAddEntry();
 			break;
 		case 2:
-			listEntries();
+			memberListEntries();
 			break;
 		case 3:
-			updateEntry();
+			memberUpdateEntry();
 			break;
 		case 4:
-			deleteEntry();
+			memberDeleteEntry();
 			break;
 		case 5:
-			searchEntry();
+			memberSearchEntry();
 			break;
 		case 10:
 			return;
