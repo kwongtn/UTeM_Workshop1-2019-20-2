@@ -18,7 +18,8 @@ json memberDataStruct{
 		{"showDuringDeletion", true},
 		{"outputSizing", 10},
 		{"updatable", false},
-		{"isUnique", true}
+		{"isUnique", true},
+		{"inThisTable", true}
 	},
 	{
 		{"columnName", "engName"},
@@ -30,7 +31,8 @@ json memberDataStruct{
 		{"showDuringDeletion", true},
 		{"outputSizing", 50},
 		{"updatable", true},
-		{"isUnique", false}
+		{"isUnique", false},
+		{"inThisTable", true}
 	},
 	{
 		{"columnName", "matrixNo"},
@@ -42,7 +44,8 @@ json memberDataStruct{
 		{"showDuringDeletion", true},
 		{"outputSizing", 15},
 		{"updatable", true},
-		{"isUnique", true}
+		{"isUnique", true},
+		{"inThisTable", true}
 	},/*
 	{
 		{"columnName", "email"},
@@ -54,7 +57,8 @@ json memberDataStruct{
 		{"showDuringDeletion", true},
 		{"outputSizing", 30},
 		{"updatable", true},
-		{"isUnique", false}
+		{"isUnique", false},
+		{"inThisTable", true}
 	},*/
 	{
 		{"columnName", "hostel"},
@@ -66,7 +70,8 @@ json memberDataStruct{
 		{"showDuringDeletion", true},
 		{"outputSizing", 10},
 		{"updatable", true},
-		{"isUnique", false}
+		{"isUnique", false},
+		{"inThisTable", true}
 	},
 	{
 		{"columnName", "signupTime"},
@@ -78,7 +83,8 @@ json memberDataStruct{
 		{"showDuringDeletion", false},
 		{"outputSizing", 30},
 		{"updatable", false},
-		{"isUnique", false}
+		{"isUnique", false},
+		{"inThisTable", true}
 	},
 	{
 		{"columnName", "updateTime"},
@@ -90,7 +96,8 @@ json memberDataStruct{
 		{"showDuringDeletion", false},
 		{"outputSizing", 30},
 		{"updatable", false},
-		{"isUnique", false}
+		{"isUnique", false},
+		{"inThisTable", true}
 	}
 };
 
@@ -198,12 +205,19 @@ void memberSearchEntry() {
 
 	heading("Search Result");
 	printLine();
+	int selection = 0;
+	cout << "How would you like to order your results by?" << endl;
+	menuGen(memberDataStruct, "columnDescription");
+	selection = inputInt();
+
+	heading("Search Result");
+	printLine();
 	cout << "Search statement: " << endl;
 	cout << criteriaStringUser << endl;
 
 	pause();
 
-	preparedStatement += criteriaStringSys;
+	preparedStatement += criteriaStringSys + " ORDER BY " + returnString(memberDataStruct[selection]["columnName"]);
 
 	// Print table headings
 	int lineSize = 0;
@@ -360,10 +374,15 @@ void memberListEntries() {
 	heading("Listing Member entries.");
 	printLine();
 
+	int selection = 0;
+	cout << "How would you like to order your results by?" << endl;
+	menuGen(memberDataStruct, "columnDescription");
+	selection = inputInt();
+
 	// Print table headings
 	int lineSize = 0;
 	for (int i = 0; i < memberDataStruct.size(); i++) {
-		if (memberDataStruct[i]["searchable"]) {
+		if (memberDataStruct[i]["selected"]) {
 			cout << left << std::setw(memberDataStruct[i]["outputSizing"]) << returnString(memberDataStruct[i]["columnDescription"]);
 
 			memberTempDataStore.push_back(memberDataStruct[i]["outputSizing"]);
