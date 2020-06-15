@@ -110,7 +110,7 @@ json userTempDataStore2{};
 json userTempDataStore3{};
 
 // Search entry
-void searchEntry() {
+void userSearchEntry() {
 	// Copies searchable items to userTempDataStore
 	int tempCounter = 0;
 	for (int i = 0; i < userDataStruct.size(); i++) {
@@ -269,7 +269,7 @@ void searchEntry() {
 	cout << endl;
 
 	printLine('=', lineSize);
-
+	
 
 	try {
 		Session sess = getSessionDb();
@@ -312,7 +312,7 @@ void searchEntry() {
 }
 
 // Create entry
-void addEntry() {
+void userAddEntry() {
 	heading("User Creation");
 	printLine();
 	cout << "Please input the following data to facilitate for user creation.\n* Indicates that entries with that value must be unique." << endl << endl;
@@ -406,7 +406,7 @@ void addEntry() {
 }
 
 // List entry
-void listEntries() {
+void userListEntries() {
 	// Copy relavant rows to tempDataStore
 	int menuSize = 0;
 	for (int i = 0; i < userDataStruct.size(); i++) {
@@ -495,7 +495,7 @@ void listEntries() {
 }
 
 // Update entry
-void updateEntry() {
+void userUpdateEntry() {
 	// To ask if the user wants to search for the relavant data
 	while (true) {
 		heading("Update Member Entries.");
@@ -505,7 +505,7 @@ void updateEntry() {
 		if (!decider()) {
 			break;
 		}
-		searchEntry();
+		userSearchEntry();
 	}
 
 
@@ -674,7 +674,7 @@ void updateEntry() {
 }
 
 // Delete entry
-void deleteEntry() {
+void userDeleteEntry() {
 	// To ask if the user wants to search for the relavant data
 	while (true) {
 		heading("Delete Member Entries.");
@@ -684,7 +684,7 @@ void deleteEntry() {
 		if (!decider()) {
 			break;
 		}
-		searchEntry();
+		userSearchEntry();
 	}
 
 
@@ -790,19 +790,19 @@ MenuStart:
 		switch (selection)
 		{
 		case 1:
-			addEntry();
+			userAddEntry();
 			break;
 		case 2:
-			listEntries();
+			userListEntries();
 			break;
 		case 3:
-			updateEntry();
+			userUpdateEntry();
 			break;
 		case 4:
-			deleteEntry();
+			userDeleteEntry();
 			break;
 		case 5:
-			searchEntry();
+			userSearchEntry();
 			break;
 		case 10:
 			return;
