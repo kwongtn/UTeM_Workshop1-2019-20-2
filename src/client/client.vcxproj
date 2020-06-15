@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="activity.cpp" />
     <ClCompile Include="client.cpp" />
     <ClCompile Include="db_utils.cpp" />
     <ClCompile Include="member.cpp" />

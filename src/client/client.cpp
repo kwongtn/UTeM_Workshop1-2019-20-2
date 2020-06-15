@@ -11,6 +11,7 @@ using namespace ::mysqlx;
 void userMenu();
 void memberMenu();
 void additionalInformation();
+void activityMenu(int userID);
 Session getSessionDb();
 
 int userID;
@@ -51,7 +52,7 @@ MenuStart:
 			memberMenu();
 			break;
 		case 2:
-			// TODO: Activity Menu
+			activityMenu(userID);
 			break;
 		case 3:
 			//TODO: Attendance Menu

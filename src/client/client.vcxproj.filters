@@ -27,6 +27,9 @@
     <ClCompile Include="member.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="activity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="parameters.h">
