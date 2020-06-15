@@ -116,13 +116,19 @@ inline bool jsonContains(json myJSON, std::string element) {
 	return false;
 }
 
-inline int inputInt(bool cinIgnore = true) {
+inline int inputInt(bool prompter = true, bool forceInput = true) {
 	std::string myString = "";
 	int i;
 	while (true) {
 		cin.clear();
-		cout << "\n> ";
+		if (prompter) {
+			cout << "\n> ";
+		}
 		getline(cin, myString);
+
+		if (myString == "" && !forceInput) {
+			return -1000;
+		}
 
 		try
 		{
@@ -131,12 +137,14 @@ inline int inputInt(bool cinIgnore = true) {
 		}
 		catch (std::invalid_argument const& e)
 		{
-			cout << "Bad input: std::invalid_argument thrown" << '\n';
+			cout << "Bad input: std::invalid_argument thrown. Please re-input." << '\n';
+			!prompter ? prompter = !prompter : prompter;
 			continue;
 		}
 		catch (std::out_of_range const& e)
 		{
-			cout << "Integer overflow: std::out_of_range thrown" << '\n';
+			cout << "Integer overflow: std::out_of_range thrown. Please re-input." << '\n';
+			!prompter ? prompter = !prompter : prompter;
 			continue;
 		}
 

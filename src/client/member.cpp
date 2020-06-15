@@ -776,7 +776,7 @@ MenuStart:
 	bool toggle = false;
 	try {
 		cout << "Please input your selection: " << endl;
-		selection = inputInt(toggle);
+		selection = inputInt();
 		if (selection > menuEntries.size() || selection < 0) {
 			if (selection != 10) {
 				throw "Error";
