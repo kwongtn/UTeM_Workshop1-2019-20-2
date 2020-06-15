@@ -13,6 +13,9 @@ void memberMenu();
 void additionalInformation();
 Session getSessionDb();
 
+int userID;
+std::string userName;
+
 void mainMenu() {
 	unsigned short int selection = 0;
 
@@ -90,15 +93,15 @@ bool login() {
 	getline(cin, password);
 
 	std::string preparedStatement = "";
-	preparedStatement += "SELECT a.engName FROM MEMBER a INNER JOIN USER b ON a.memberID=b.memberID WHERE ";
-	preparedStatement += "a.matrixNo=\'" + login + "\' AND b.pw=\'" + password + "\'";
+	preparedStatement += "SELECT a.engName, b.userID FROM MEMBER a INNER JOIN USER b ON a.memberID=b.memberID WHERE ";
+	preparedStatement += "a.matrixNo=? AND b.pw=?";
 
 	cout << "Verifying your login credentials, please wait." << endl;
 	try {
 
 		Session sess = getSessionDb();
-		
-		auto myRows = sess.sql(preparedStatement).execute();
+
+		auto myRows = sess.sql(preparedStatement).bind(login, password).execute();
 
 		if (myRows.count() != 1) {
 			cout << "Login error. Please try again." << endl;
@@ -106,14 +109,32 @@ bool login() {
 			return false;
 		}
 		else {
+			// Write into username and userID
+			std::stringstream ss1, ss2;
+
+			auto myRow = myRows.fetchOne();
+
+			myRow.get(0).print(ss1);
+			userName = ss1.str();
+
+			myRow.get(1).print(ss2);
+			userID = std::stoi(ss2.str());
+
+			cout << endl;
+			cout << "Welcome " << userName << ". You are now logged in." << endl;
+
+			pause();
+
 			return true;
 		}
-			
+
 	}
 	catch (const mysqlx::Error& err)
 	{
 		cout << "ERROR: " << err << endl;
 	}
+	pause();
+	return false;
 }
 
 int main() {
