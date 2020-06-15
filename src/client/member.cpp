@@ -19,7 +19,8 @@ json memberDataStruct{
 		{"outputSizing", 10},
 		{"updatable", false},
 		{"isUnique", true},
-		{"inThisTable", true}
+		{"inThisTable", true},
+		{"orderable", true}
 	},
 	{
 		{"columnName", "engName"},
@@ -32,7 +33,8 @@ json memberDataStruct{
 		{"outputSizing", 50},
 		{"updatable", true},
 		{"isUnique", false},
-		{"inThisTable", true}
+		{"inThisTable", true},
+		{"orderable", true}
 	},
 	{
 		{"columnName", "matrixNo"},
@@ -45,7 +47,8 @@ json memberDataStruct{
 		{"outputSizing", 15},
 		{"updatable", true},
 		{"isUnique", true},
-		{"inThisTable", true}
+		{"inThisTable", true},
+		{"orderable", true}
 	},/*
 	{
 		{"columnName", "email"},
@@ -58,7 +61,8 @@ json memberDataStruct{
 		{"outputSizing", 30},
 		{"updatable", true},
 		{"isUnique", false},
-		{"inThisTable", true}
+		{"inThisTable", true},
+		{"orderable", true}
 	},*/
 	{
 		{"columnName", "hostel"},
@@ -71,7 +75,8 @@ json memberDataStruct{
 		{"outputSizing", 10},
 		{"updatable", true},
 		{"isUnique", false},
-		{"inThisTable", true}
+		{"inThisTable", true},
+		{"orderable", true}
 	},
 	{
 		{"columnName", "signupTime"},
@@ -84,7 +89,8 @@ json memberDataStruct{
 		{"outputSizing", 30},
 		{"updatable", false},
 		{"isUnique", false},
-		{"inThisTable", true}
+		{"inThisTable", true},
+		{"orderable", true}
 	},
 	{
 		{"columnName", "updateTime"},
@@ -97,7 +103,8 @@ json memberDataStruct{
 		{"outputSizing", 30},
 		{"updatable", false},
 		{"isUnique", false},
-		{"inThisTable", true}
+		{"inThisTable", true},
+		{"orderable", true}
 	}
 };
 
@@ -106,10 +113,6 @@ json memberTempDataStore2{};
 
 // Search entry
 void memberSearchEntry() {
-	system("cls");
-	memberTempDataStore.clear();
-
-
 	// Copies searchable items to memberTempDataStore
 	int tempCounter = 0;
 	for (int i = 0; i < memberDataStruct.size(); i++) {
@@ -117,6 +120,18 @@ void memberSearchEntry() {
 			memberTempDataStore[tempCounter]["colName"] = memberDataStruct[i]["columnName"];
 			memberTempDataStore[tempCounter]["colDesc"] = memberDataStruct[i]["columnDescription"];
 			memberTempDataStore[tempCounter]["outputSizing"] = memberDataStruct[i]["outputSizing"];
+
+			tempCounter++;
+		}
+	}
+
+	// Copies orderable items to memberTempDataStore2
+	tempCounter = 0;
+	for (int i = 0; i < memberDataStruct.size(); i++) {
+		if (memberDataStruct[i]["orderable"]) {
+			memberTempDataStore2[tempCounter]["colName"] = memberDataStruct[i]["columnName"];
+			memberTempDataStore2[tempCounter]["colDesc"] = memberDataStruct[i]["columnDescription"];
+			memberTempDataStore2[tempCounter]["outputSizing"] = memberDataStruct[i]["outputSizing"];
 
 			tempCounter++;
 		}
@@ -154,17 +169,16 @@ void memberSearchEntry() {
 
 		}
 
-		bool x = true;
 		int selection;
-		while (x) {
+		while (true) {
 			cout << "\nPlease select the column you would like to search by: ";
 			try {
 				selection = inputInt();
-				if (selection > tempCounter || selection < 0) {
+				if (selection > memberTempDataStore.size() || selection < 0) {
 					throw "Error";
 				}
 				else {
-					x = false;
+					break;
 				}
 			}
 			catch (...) {
@@ -203,21 +217,32 @@ void memberSearchEntry() {
 
 	} while (decider());
 
-	heading("Search Result");
-	printLine();
+
 	int selection = 0;
-	cout << "How would you like to order your results by?" << endl;
-	menuGen(memberDataStruct, "columnDescription");
-	selection = inputInt();
+	// Make and validate selection
+	while (true) {
+		heading("Search Result");
+		printLine();
+
+		cout << "How would you like to order your results by?" << endl;
+		menuGen(memberTempDataStore2, "colDesc");
+		selection = inputInt();
+		if (selection < memberTempDataStore2.size()) {
+			break;
+		}
+		else {
+			cout << "Please input a valid selection. " << endl;
+			pause();
+		}
+
+	}
 
 	heading("Search Result");
 	printLine();
-	cout << "Search statement: " << endl;
-	cout << criteriaStringUser << endl;
+	cout << "Search statement " << criteriaStringUser << endl;
 
-	pause();
+	preparedStatement += criteriaStringSys + " ORDER BY " + returnString(memberTempDataStore2[selection]["colName"]);
 
-	preparedStatement += criteriaStringSys + " ORDER BY " + returnString(memberDataStruct[selection]["columnName"]);
 
 	// Print table headings
 	int lineSize = 0;
@@ -244,7 +269,7 @@ void memberSearchEntry() {
 		for (int i = 0; i < criterias.size(); i++) {
 			mySess.bind(criterias[i]);
 		}
-			
+
 		auto myRows = mySess.execute();
 
 		// Print table content
@@ -278,8 +303,6 @@ void memberSearchEntry() {
 
 // Create entry
 void memberAddEntry() {
-	memberTempDataStore.clear();
-
 	heading("Member Creation");
 	printLine();
 	cout << "Please input the following data to facilitate for member creation.\n* Indicates that entries with that value must be unique." << endl << endl;
@@ -370,22 +393,45 @@ void memberAddEntry() {
 
 // List entry
 void memberListEntries() {
-	memberTempDataStore.clear();
-	heading("Listing Member entries.");
-	printLine();
+	// Copy relavant rows to tempDataStore
+	int menuSize = 0;
+	for (int i = 0; i < memberDataStruct.size(); i++) {
+		if (memberDataStruct[i]["orderable"]) {
+			memberTempDataStore[menuSize]["colDesc"] = memberDataStruct[i]["columnDescription"];
+			memberTempDataStore[menuSize]["colName"] = memberDataStruct[i]["columnName"];
+			memberTempDataStore[menuSize]["outputSizing"] = memberDataStruct[i]["outputSizing"];
+			menuSize++;
+		}
+	}
 
 	int selection = 0;
-	cout << "How would you like to order your results by?" << endl;
-	menuGen(memberDataStruct, "columnDescription");
-	selection = inputInt();
+	// Make and validate selection
+	while (true) {
+		heading("Listing Member entries.");
+		printLine();
 
-	// Print table headings
+		cout << "How would you like to order your results by?" << endl;
+		menuGen(memberTempDataStore, "colDesc");
+		selection = inputInt();
+
+		if (selection < memberTempDataStore.size()) {
+			break;
+		}
+		else {
+			cout << "Please input a valid selection. " << endl;
+			pause();
+		}
+
+	}
+
+	// Print table headings, and copy into vector space for outputSizing
 	int lineSize = 0;
+	std::vector<int> outputSizingVector;
 	for (int i = 0; i < memberDataStruct.size(); i++) {
 		if (memberDataStruct[i]["selected"]) {
 			cout << left << std::setw(memberDataStruct[i]["outputSizing"]) << returnString(memberDataStruct[i]["columnDescription"]);
 
-			memberTempDataStore.push_back(memberDataStruct[i]["outputSizing"]);
+			outputSizingVector.push_back(memberDataStruct[i]["outputSizing"]);
 
 			lineSize += memberDataStruct[i]["outputSizing"];
 
@@ -401,13 +447,13 @@ void memberListEntries() {
 		Session sess = getSessionDb();
 
 
-		auto myRows = sess.sql("SELECT " + columnNamesGen(memberDataStruct, "selected", "columnName") + " FROM " + thisTableName + " ORDER BY " + returnString(memberDataStruct[selection]["columnName"]))
+		auto myRows = sess.sql("SELECT " + columnNamesGen(memberDataStruct, "selected", "columnName") + " FROM " + thisTableName + " ORDER BY " + returnString(memberTempDataStore[selection]["colName"]))
 			.execute();
 
 		int rowCount = 0;
 		for (Row row : myRows.fetchAll()) {
 			for (int i = 0; i < row.colCount(); i++) {
-				cout << left << std::setw(memberTempDataStore[i]) << row[i];
+				cout << left << std::setw(outputSizingVector[i]) << row[i];
 			}
 			cout << endl;
 
@@ -433,9 +479,6 @@ void memberListEntries() {
 
 // Update entry
 void memberUpdateEntry() {
-	memberTempDataStore.clear();
-	system("cls");
-
 	// To ask if the user wants to search for the relavant data
 	while (true) {
 		heading("Update Member Entries.");
@@ -613,8 +656,6 @@ void memberUpdateEntry() {
 
 // Delete entry
 void memberDeleteEntry() {
-	system("cls");
-
 	// To ask if the user wants to search for the relavant data
 	while (true) {
 		heading("Delete Member Entries.");
@@ -705,6 +746,7 @@ void memberMenu() {
 MenuStart:
 	json menuEntries = { "Add Member", "List Members", "Update Member", "Delete Member", "Search Member" };
 
+
 	clearScreen();
 
 	// Show menu top
@@ -757,10 +799,10 @@ MenuStart:
 	catch (...) {
 		cout << "\nPlease input a valid selection. \n";
 		pause();
-		cin.clear();
 	}
 
 	cout << endl;
-	toggle = !toggle;
+	memberTempDataStore.clear();
+	memberTempDataStore2.clear();
 	goto MenuStart;
 }
