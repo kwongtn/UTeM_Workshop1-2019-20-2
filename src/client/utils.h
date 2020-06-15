@@ -48,21 +48,26 @@ inline std::string returnString(json i) {
 }
 
 
-inline void menuGen(json rowNames, std::string myOutput) {
+inline int menuGen(json rowNames, std::string myOutput) {
+	int j = 0;
 	for (int i = 0; i < rowNames.size(); i++) {
 		cout << i << "\t" << returnString(rowNames[i][myOutput]) << endl;
+		j++;
 	}
 	cout << endl;
+	return j;
 }
 
-inline void menuGen(json rowNames, std::string myOutput, std::string determiner) {
+inline int menuGen(json rowNames, std::string myOutput, std::string determiner) {
+	int j = 0;
 	for (int i = 0; i < rowNames.size(); i++) {
 		if (rowNames[i][determiner]) {
 			cout << i << "\t" << returnString(rowNames[i][myOutput]) << endl;
-
+			j++;
 		}
 	}
 	cout << endl;
+	return j;
 }
 
 

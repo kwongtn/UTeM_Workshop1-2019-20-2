@@ -8,6 +8,22 @@ std::string columnNamesGen(json, std::string, std::string, std::string wrapper =
 const std::string thisTableName = "USER";
 const std::string innerJoin = "USER a INNER JOIN MEMBER b ON a.memberID=b.memberID";
 
+
+/*
+- columnName					: Indicates the column name on its own table.
+- altColumnName				: Indicates the column name should it is being joined to other tables.
+- columnDescription		: Indicates the user facing name.
+- input								: Indicates whether users are allowed to input during entry creation.
+- compulsoryInput			: Indicates whether the column must be filled in during entry creation.
+- selected						: Indicates whether the column will be shown during listing.
+- searchable					: Indicates whether searches by that column will be allowed.
+- showDuringDeletion	: Indicates whether the column will be shown during deletion.
+- outputSizing				: Indicates the size of output in fixed width constraint situations.
+- updatable						: Indicates whether the column is updatable.
+- isUnique						: Indicates whether a column's value must be unique.
+- inThisTable					: Indicates whether a column exists in the table defined by 'thisTableName'.
+- orderable						: Whether ordering by this column is allowed.
+*/
 json userDataStruct{
 	{
 		{"columnName", "userID"},
@@ -21,7 +37,8 @@ json userDataStruct{
 		{"outputSizing", 10},
 		{"updatable", false},
 		{"isUnique", true},
-		{"inThisTable", true}
+		{"inThisTable", true},
+		{"orderable", true}
 	},{
 		{"columnName", "memberID"},
 		{"altColumnName", "a.memberID"},
@@ -34,7 +51,8 @@ json userDataStruct{
 		{"outputSizing", 10},
 		{"updatable", false},
 		{"isUnique", true},
-		{"inThisTable", true}
+		{"inThisTable", true},
+		{"orderable", true}
 	},{
 		{"columnName", "matrixNo"},
 		{"altColumnName", "b.matrixNo"},
@@ -48,6 +66,7 @@ json userDataStruct{
 		{"updatable", false},
 		{"isUnique", true},
 		{"inThisTable", false},
+		{"orderable", true},
 		{"correspondingTable", "MEMBER"},
 		{"localJoin", "memberID"},
 		{"externalJoin", "memberID"}
@@ -63,7 +82,8 @@ json userDataStruct{
 		{"outputSizing", 10},
 		{"updatable", true},
 		{"isUnique", false},
-		{"inThisTable", true}
+		{"inThisTable", true},
+		{"orderable", false}
 	},{
 		{"columnName", "engName"},
 		{"altColumnName", "b.engName"},
@@ -77,6 +97,7 @@ json userDataStruct{
 		{"updatable", false},
 		{"isUnique", false},
 		{"inThisTable", false},
+		{"orderable", true},
 		{"correspondingTable", "MEMBER"},
 		{"localJoin", "memberID"},
 		{"externalJoin", "memberID"}
@@ -86,10 +107,212 @@ json userDataStruct{
 
 json userTempDataStore{};
 json userTempDataStore2{};
+json userTempDataStore3{};
+
+// Search entry
+void searchEntry() {
+	// Copies searchable items to userTempDataStore
+	int tempCounter = 0;
+	for (int i = 0; i < userDataStruct.size(); i++) {
+		if (userDataStruct[i]["searchable"]) {
+			userTempDataStore[tempCounter]["colName"] = userDataStruct[i]["altColumnName"];
+			userTempDataStore[tempCounter]["colDesc"] = userDataStruct[i]["columnDescription"];
+			userTempDataStore[tempCounter]["outputSizing"] = userDataStruct[i]["outputSizing"];
+
+			tempCounter++;
+		}
+	}
+
+	// Copies orderable items to userTempDataStore2
+	tempCounter = 0;
+	for (int i = 0; i < userDataStruct.size(); i++) {
+		if (userDataStruct[i]["orderable"]) {
+			userTempDataStore2[tempCounter]["colName"] = userDataStruct[i]["altColumnName"];
+			userTempDataStore2[tempCounter]["colDesc"] = userDataStruct[i]["columnDescription"];
+			userTempDataStore2[tempCounter]["outputSizing"] = userDataStruct[i]["outputSizing"];
+
+			tempCounter++;
+		}
+	}
+
+	// Copies listable items to userTempDataStore3
+	tempCounter = 0;
+	for (int i = 0; i < userDataStruct.size(); i++) {
+		if (userDataStruct[i]["selected"]) {
+			userTempDataStore3[tempCounter]["colName"] = userDataStruct[i]["altColumnName"];
+			userTempDataStore3[tempCounter]["colDesc"] = userDataStruct[i]["columnDescription"];
+			userTempDataStore3[tempCounter]["outputSizing"] = userDataStruct[i]["outputSizing"];
+
+			tempCounter++;
+		}
+	}
+
+	std::string preparedStatement = "SELECT " + columnNamesGen(userDataStruct, "selected", "altColumnName") + " FROM " + innerJoin + " WHERE ";
+
+	int counter = 0;
+	std::string criteriaStringUser = "Criteria: SELECT WHERE ";
+	std::string criteriaStringSys = "";
+	std::vector<std::string> criterias;
+
+	do {
+		heading("Searching Member Entries.");
+		printLine();
+		if (counter > 0) {
+			cout << "\nCurrent " << criteriaStringUser << endl;
+			cout << "\nWould you like an \'OR\' join towards the previous criteria? Default: \'AND\' join" << endl;
+			if (decider()) {
+				criteriaStringSys += " OR ";
+				criteriaStringUser += " OR ";
+			}
+			else {
+				criteriaStringSys += " AND ";
+				criteriaStringUser += " AND ";
+			}
+		}
+
+		heading("Searching Member Entries.");
+		printLine();
+		menuGen(userTempDataStore, "colDesc");
+
+		if (counter > 0) {
+			cout << "\nCurrent " << criteriaStringUser << endl;
+
+		}
+
+		int selection;
+		while (true) {
+			cout << "\nPlease select the column you would like to search by: ";
+			try {
+				selection = inputInt();
+				if (selection > userTempDataStore.size() || selection < 0) {
+					throw "Error";
+				}
+				else {
+					break;
+				}
+			}
+			catch (...) {
+				cout << "Please input a valid selection." << endl;
+				pause();
+			}
+
+		}
+
+		// Search criteria input.
+		heading("USER: Search Criteria Creation");
+		printLine();
+		if (counter > 0) {
+			cout << "\nCurrent " << criteriaStringUser << endl << endl;
+
+		}
+		cout << "Selected " << userTempDataStore[selection]["colDesc"] << endl;
+
+		// To get search criteria
+		cout << "Please input the search criteria. You may use SQL-based wildcards like \"%\"\n\n> ";
+
+		std::string criteria = "";
+		std::getline(cin, criteria);
+
+		criterias.push_back(criteria);
+		criteriaStringUser += userTempDataStore[selection]["colDesc"];
+		criteriaStringUser += " is \"" + criteria + "\" \n";
+
+		cout << "\n\n" << criteriaStringUser;
+
+
+		criteriaStringSys += returnString(userTempDataStore[selection]["colName"]) + " like ?";
+
+		counter++;
+
+		cout << "\nWould you like to add criteria? " << endl;
+
+	} while (decider());
+
+
+	int selection = 0;
+	// Make and validate selection
+	while (true) {
+		heading("Search Result");
+		printLine();
+
+		cout << "How would you like to order your results by?" << endl;
+		menuGen(userTempDataStore2, "colDesc");
+		selection = inputInt();
+		if (selection < userTempDataStore2.size()) {
+			break;
+		}
+		else {
+			cout << "Please input a valid selection. " << endl;
+			pause();
+		}
+
+	}
+
+	heading("Search Result");
+	printLine();
+	cout << "Search statement " << criteriaStringUser << endl;
+
+	preparedStatement += criteriaStringSys + " ORDER BY " + returnString(userTempDataStore2[selection]["colName"]);
+
+
+	// Print table headings
+	int lineSize = 0;
+	for (int i = 0; i < userDataStruct.size(); i++) {
+		if (userDataStruct[i]["selected"]) {
+			cout << left << std::setw(userDataStruct[i]["outputSizing"]) << returnString(userDataStruct[i]["columnDescription"]);
+
+			lineSize += userDataStruct[i]["outputSizing"];
+
+		}
+	}
+
+	cout << endl;
+
+	printLine('=', lineSize);
+
+
+	try {
+		Session sess = getSessionDb();
+
+		auto mySess = sess.sql(preparedStatement);
+		for (int i = 0; i < criterias.size(); i++) {
+			mySess.bind(criterias[i]);
+		}
+
+		auto myRows = mySess.execute();
+
+		// Print table content
+		int rowCount = 0;
+		for (Row row : myRows.fetchAll()) {
+			for (int i = 0; i < row.colCount(); i++) {
+				cout << left << std::setw(userTempDataStore3[i]["outputSizing"]) << row[i];
+			}
+			cout << endl;
+
+			rowCount++;
+		}
+
+		cout << endl;
+
+		cout << "Returned " << rowCount << " results." << endl;
+	}
+	catch (const mysqlx::Error& err)
+	{
+		cout << "ERROR: " << err << endl;
+	}
+	catch (...) {
+		cout << "Unknown Error";
+	}
+
+	pause();
+
+
+
+
+}
+
 // Create entry
 void addEntry() {
-	userTempDataStore.clear();
-
 	heading("User Creation");
 	printLine();
 	cout << "Please input the following data to facilitate for user creation.\n* Indicates that entries with that value must be unique." << endl << endl;
@@ -181,11 +404,98 @@ void addEntry() {
 
 	pause();
 }
+
+// List entry
+void listEntries() {
+	// Copy relavant rows to tempDataStore
+	int menuSize = 0;
+	for (int i = 0; i < userDataStruct.size(); i++) {
+		if (userDataStruct[i]["orderable"]) {
+			userTempDataStore[menuSize]["colDesc"] = userDataStruct[i]["columnDescription"];
+			userTempDataStore[menuSize]["colName"] = userDataStruct[i]["altColumnName"];
+			userTempDataStore[menuSize]["outputSizing"] = userDataStruct[i]["outputSizing"];
+			menuSize++;
+		}
+	}
+
+	int selection = 0;
+	// Make and validate selection
+	while (true) {
+		heading("Listing User entries.");
+		printLine();
+
+		cout << "How would you like to order your results by?" << endl;
+		menuGen(userTempDataStore, "colDesc");
+		selection = inputInt();
+
+		if (selection < userTempDataStore.size()) {
+			break;
+		}
+		else {
+			cout << "Please input a valid selection. " << endl;
+			pause();
+		}
+
+	}
+
+	heading("Listing User entries.");
+	printLine();
+
+	// Print table headings, and copy into vector space for outputSizing
+	int lineSize = 0;
+	std::vector<int> outputSizingVector;
+	for (int i = 0; i < userDataStruct.size(); i++) {
+		if (userDataStruct[i]["selected"]) {
+			cout << left << std::setw(userDataStruct[i]["outputSizing"]) << returnString(userDataStruct[i]["columnDescription"]);
+
+			outputSizingVector.push_back(userDataStruct[i]["outputSizing"]);
+
+			lineSize += userDataStruct[i]["outputSizing"];
+
+		}
+	}
+
+	cout << endl;
+
+	printLine('=', lineSize);
+
+	// Print table content
+	try {
+		Session sess = getSessionDb();
+
+
+		auto myRows = sess.sql("SELECT " + columnNamesGen(userDataStruct, "selected", "altColumnName") + " FROM " + innerJoin + " ORDER BY " + returnString(userTempDataStore[selection]["colName"]))
+			.execute();
+
+		int rowCount = 0;
+		for (Row row : myRows.fetchAll()) {
+			for (int i = 0; i < row.colCount(); i++) {
+				cout << left << std::setw(outputSizingVector[i]) << row[i];
+			}
+			cout << endl;
+
+			rowCount++;
+		}
+
+		cout << endl;
+
+		cout << "Returned " << rowCount << " results." << endl;
+
+	}
+	catch (const mysqlx::Error& err)
+	{
+		cout << "ERROR: " << err << endl;
+	}
+	catch (...) {
+		cout << "Unknown Error";
+	}
+
+	cout << endl;
+	pause();
+}
+
 // Update entry
 void updateEntry() {
-	userTempDataStore.clear();
-	system("cls");
-
 	// To ask if the user wants to search for the relavant data
 	while (true) {
 		heading("Update Member Entries.");
@@ -365,8 +675,6 @@ void updateEntry() {
 
 // Delete entry
 void deleteEntry() {
-	system("cls");
-
 	// To ask if the user wants to search for the relavant data
 	while (true) {
 		heading("Delete Member Entries.");
@@ -450,7 +758,6 @@ void deleteEntry() {
 }
 
 
-
 void userMenu() {
 	unsigned short int selection = 0;
 
@@ -514,5 +821,8 @@ MenuStart:
 
 	cout << endl;
 	toggle = !toggle;
+	userTempDataStore.clear();
+	userTempDataStore2.clear();
+	userTempDataStore3.clear();
 	goto MenuStart;
 }

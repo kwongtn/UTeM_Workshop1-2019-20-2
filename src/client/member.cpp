@@ -7,6 +7,7 @@ Session getSessionDb();
 std::string columnNamesGen(json, std::string, std::string, std::string wrapper = "");
 const std::string thisTableName = "MEMBER";
 
+// 
 json memberDataStruct{
 	{
 		{"columnName", "memberID"},
@@ -110,6 +111,7 @@ json memberDataStruct{
 
 json memberTempDataStore{};
 json memberTempDataStore2{};
+json memberTempDataStore3{};
 
 // Search entry
 void memberSearchEntry() {
@@ -132,6 +134,18 @@ void memberSearchEntry() {
 			memberTempDataStore2[tempCounter]["colName"] = memberDataStruct[i]["columnName"];
 			memberTempDataStore2[tempCounter]["colDesc"] = memberDataStruct[i]["columnDescription"];
 			memberTempDataStore2[tempCounter]["outputSizing"] = memberDataStruct[i]["outputSizing"];
+
+			tempCounter++;
+		}
+	}
+
+	// Copies listable items to memberTempDataStore3
+	tempCounter = 0;
+	for (int i = 0; i < memberDataStruct.size(); i++) {
+		if (memberDataStruct[i]["selected"]) {
+			memberTempDataStore3[tempCounter]["colName"] = memberDataStruct[i]["columnName"];
+			memberTempDataStore3[tempCounter]["colDesc"] = memberDataStruct[i]["columnDescription"];
+			memberTempDataStore3[tempCounter]["outputSizing"] = memberDataStruct[i]["outputSizing"];
 
 			tempCounter++;
 		}
@@ -188,6 +202,7 @@ void memberSearchEntry() {
 
 		}
 
+		// Search criteria input
 		heading("MEMBER: Search Criteria Creation");
 		printLine();
 		if (counter > 0) {
@@ -247,10 +262,8 @@ void memberSearchEntry() {
 	// Print table headings
 	int lineSize = 0;
 	for (int i = 0; i < memberDataStruct.size(); i++) {
-		if (memberDataStruct[i]["searchable"]) {
+		if (memberDataStruct[i]["selected"]) {
 			cout << left << std::setw(memberDataStruct[i]["outputSizing"]) << returnString(memberDataStruct[i]["columnDescription"]);
-
-			memberTempDataStore.push_back(memberDataStruct[i]["outputSizing"]);
 
 			lineSize += memberDataStruct[i]["outputSizing"];
 
@@ -276,7 +289,7 @@ void memberSearchEntry() {
 		int rowCount = 0;
 		for (Row row : myRows.fetchAll()) {
 			for (int i = 0; i < row.colCount(); i++) {
-				cout << left << std::setw(memberTempDataStore[i]["outputSizing"]) << row[i];
+				cout << left << std::setw(memberTempDataStore3[i]["outputSizing"]) << row[i];
 			}
 			cout << endl;
 
@@ -804,5 +817,6 @@ MenuStart:
 	cout << endl;
 	memberTempDataStore.clear();
 	memberTempDataStore2.clear();
+	memberTempDataStore3.clear();
 	goto MenuStart;
 }
