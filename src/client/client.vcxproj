@@ -155,6 +155,7 @@
     <ClCompile Include="client.cpp" />
     <ClCompile Include="db_utils.cpp" />
     <ClCompile Include="member.cpp" />
+    <ClCompile Include="user.cpp" />
     <ClCompile Include="additionalInformation.cpp" />
   </ItemGroup>
   <ItemGroup>
