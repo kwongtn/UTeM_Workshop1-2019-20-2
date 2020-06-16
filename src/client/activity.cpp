@@ -160,19 +160,19 @@ json activityDataStruct{
 		{"orderable", true},
 		{"isInteger", false}
 	},{
-		{"columnName", "concat(activityYear, \"-\", if(activityMonth<10, concat(\"0\", activityMonth), activityMonth), \"-\", if(activityDay<10, concat(\"0\", activityDay), activityDay), \" \", if(activityHour<10, concat(\"0\", activityHour), activityHour), \":\", if(activityMinute<10, concat(\"0\", activityMinute), activityMinute)) AS DateTime"},
-		{"altColumnName", "concat(a.activityYear, \"-\", if(a.activityMonth<10, concat(\"0\", a.activityMonth), a.activityMonth), \"-\", if(a.activityDay<10, concat(\"0\", a.activityDay), a.activityDay), \" \", if(a.activityHour<10, concat(\"0\", a.activityHour), a.activityHour), \":\", if(a.activityMinute<10, concat(\"0\", a.activityMinute), a.activityMinute)) AS DateTime"},
+		{"columnName", "concat(activityYear, \"-\", if(activityMonth<10, concat(\"0\", activityMonth), activityMonth), \"-\", if(activityDay<10, concat(\"0\", activityDay), activityDay), \" \", if(activityHour<10, concat(\"0\", activityHour), activityHour), \":\", if(activityMinute<10, concat(\"0\", activityMinute), activityMinute))"},
+		{"altColumnName", "concat(a.activityYear, \"-\", if(a.activityMonth<10, concat(\"0\", a.activityMonth), a.activityMonth), \"-\", if(a.activityDay<10, concat(\"0\", a.activityDay), a.activityDay), \" \", if(a.activityHour<10, concat(\"0\", a.activityHour), a.activityHour), \":\", if(a.activityMinute<10, concat(\"0\", a.activityMinute), a.activityMinute))"},
 		{"columnDescription", "Datetime"},
 		{"input", false},
 		{"compulsoryInput", false},
 		{"selected", true},
-		{"searchable", false},
+		{"searchable", true},
 		{"showDuringDeletion", true},
 		{"outputSizing", 20},
 		{"updatable", false},
 		{"isUnique", false},
 		{"inThisTable", true},
-		{"orderable", false},
+		{"orderable", true},
 		{"isInteger", false}
 	}, {
 		{"columnName", "engName"},
@@ -202,7 +202,7 @@ json activityDataStruct{
 		{"updatable", true},
 		{"isUnique", false},
 		{"inThisTable", true},
-		{"orderable", true},
+		{"orderable", false},
 		{"isInteger", false}
 	}
 
@@ -775,7 +775,7 @@ void activityUpdateEntry(int userID) {
 			break;
 		}
 	}
-	preparedStatement2 += " WHERE activityID=?";
+	preparedStatement2 += ", lastUpdatedUserID=? WHERE activityID=?";
 
 	cout << preparedStatement2 << endl;
 
@@ -798,7 +798,7 @@ void activityUpdateEntry(int userID) {
 			mySess = mySess.bind(returnString(activityTempDataStore2[i]["colData"]));
 		}
 
-		mySess = mySess.bind(activityID);
+		mySess = mySess.bind(std::to_string(userID)).bind(activityID);
 
 		auto myRows = mySess.execute();
 
