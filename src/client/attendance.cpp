@@ -226,9 +226,170 @@ void attendanceSearchEntry(){}
 
 void attendanceDeleteEntry(){}
 
-void attendanceListDetail() {}
+void attendanceListDetail() {
+	// Copies relavant data to attendanceTempDataStore3
+	int tempCounter = 0;
+	for (int i = 0; i < attendanceDataStruct.size(); i++) {
+		if (attendanceDataStruct[i]["showDuringDeletion"]) {
+			attendanceTempDataStore3[tempCounter]["colName"] = attendanceDataStruct[i]["altColumnName"];
+			attendanceTempDataStore3[tempCounter]["colDesc"] = attendanceDataStruct[i]["columnDescription"];
+			attendanceTempDataStore3[tempCounter]["outputSizing"] = attendanceDataStruct[i]["outputSizing"];
+			attendanceTempDataStore3[tempCounter]["showDuringDeletion"] = attendanceDataStruct[i]["showDuringDeletion"];
 
-void attendanceList() {}
+			tempCounter++;
+		}
+	}
+
+	// To ask if the user wants to search for the relavant data
+	while (true) {
+		heading("Show Detailed Attendance Entries");
+		printLine();
+		cout << "Detailed information will be shown based on attendance ID. Do you want to search attendance data?" << endl;
+
+		if (!decider()) {
+			break;
+		}
+		attendanceSearchEntry();
+	}
+
+
+	std::string attendanceID;
+	try {
+		while (true) {
+			system("cls");
+			heading("Show Detailed Activity Entries");
+			printLine();
+			cout << "Please input activity ID to show: ";
+			attendanceID = std::to_string(inputInt(false, true));
+
+			std::string preparedStatement1 = "SELECT " + columnNamesGen(attendanceTempDataStore3, "showDuringDeletion", "colName") + " FROM " + innerJoin + " WHERE attendanceID=?";
+
+			Session sess = getSessionDb();
+
+			auto myRows = sess.sql(preparedStatement1).bind(attendanceID).execute();
+
+			printLine();
+
+			// If there are no relavant rows, prompt the user to re-input
+			if (myRows.count() > 0) {
+				for (Row row : myRows.fetchAll()) {
+					for (int i = 0; i < row.colCount(); i++) {
+						cout << left << std::setw(20) << returnString(attendanceTempDataStore3[i]["colDesc"]) << "\t: ";
+						cout << row[i] << endl;
+					}
+					cout << endl;
+				}
+
+				pause();
+				return;
+			}
+			else {
+				cout << "No member with attendance ID " << attendanceID << " found." << endl;
+				cout << "Try again?" << endl;
+
+				if (!decider()) {
+					return;
+				}
+			}
+		}
+
+		cout << endl;
+	}
+	catch (const mysqlx::Error& err)
+	{
+		cout << "ERROR: " << err << endl;
+		pause();
+	}
+	catch (...) {
+		cout << "Activity Info: Unknown Error";
+		pause();
+	}
+}
+
+void attendanceList() {
+	// Copy relavant rows to tempDataStore
+	int menuSize = 0;
+	for (int i = 0; i < attendanceDataStruct.size(); i++) {
+		if (attendanceDataStruct[i]["orderable"]) {
+			attendanceTempDataStore[menuSize]["colDesc"] = attendanceDataStruct[i]["columnDescription"];
+			attendanceTempDataStore[menuSize]["colName"] = attendanceDataStruct[i]["columnName"];
+			attendanceTempDataStore[menuSize]["outputSizing"] = attendanceDataStruct[i]["outputSizing"];
+			menuSize++;
+		}
+	}
+
+	int selection = 0;
+	// Make and validate selection
+	while (true) {
+		heading("Listing Member entries.");
+		printLine();
+
+		cout << "How would you like to order your results by?" << endl;
+		menuGen(attendanceTempDataStore, "colDesc");
+		selection = inputInt();
+
+		if (selection < attendanceTempDataStore.size()) {
+			break;
+		}
+		else {
+			cout << "Please input a valid selection. " << endl;
+			pause();
+		}
+
+	}
+
+	// Print table headings, and copy into vector space for outputSizing
+	int lineSize = 0;
+	std::vector<int> outputSizingVector;
+	for (int i = 0; i < attendanceDataStruct.size(); i++) {
+		if (attendanceDataStruct[i]["selected"]) {
+			cout << left << std::setw(attendanceDataStruct[i]["outputSizing"]) << returnString(attendanceDataStruct[i]["columnDescription"]);
+
+			outputSizingVector.push_back(attendanceDataStruct[i]["outputSizing"]);
+
+			lineSize += attendanceDataStruct[i]["outputSizing"];
+
+		}
+	}
+
+	cout << endl;
+
+	printLine('=', lineSize);
+
+	// Print table content
+	try {
+		Session sess = getSessionDb();
+
+		std::string preparedStatement = "SELECT " + columnNamesGen(attendanceDataStruct, "selected", "columnName") + " FROM " + innerJoin + " ORDER BY " + returnString(attendanceTempDataStore[selection]["colName"]);
+
+		auto myRows = sess.sql(preparedStatement).execute();
+
+		int rowCount = 0;
+		for (Row row : myRows.fetchAll()) {
+			for (int i = 0; i < row.colCount(); i++) {
+				cout << left << std::setw(outputSizingVector[i]) << row[i];
+			}
+			cout << endl;
+
+			rowCount++;
+		}
+
+		cout << endl;
+
+		cout << "Returned " << rowCount << " results." << endl;
+
+	}
+	catch (const mysqlx::Error& err)
+	{
+		cout << "ERROR: " << err << endl;
+	}
+	catch (...) {
+		cout << "Unknown Error";
+	}
+
+	cout << endl;
+	pause();
+}
 
 void attendanceMenu(int userID) {
 	unsigned short int selection = 0;
