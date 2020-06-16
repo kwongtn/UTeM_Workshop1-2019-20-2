@@ -373,7 +373,7 @@ void activityAddEntry(int userID) {
 	while (recover) {
 		try {
 			Session sess = getSessionDb();
-			cout << preparedStatement << endl;
+			
 			auto mySess = sess.sql(preparedStatement);
 
 			for (int i = 0; i < activityTempDataStore.size(); i++) {
@@ -407,6 +407,414 @@ void activityAddEntry(int userID) {
 
 	pause();
 
+}
+
+void activitySearchEntry() {
+	// Copies searchable items to activityTempDataStore
+	int tempCounter = 0;
+	for (int i = 0; i < activityDataStruct.size(); i++) {
+		if (activityDataStruct[i]["searchable"]) {
+			activityTempDataStore[tempCounter]["colName"] = activityDataStruct[i]["altColumnName"];
+			activityTempDataStore[tempCounter]["colDesc"] = activityDataStruct[i]["columnDescription"];
+			activityTempDataStore[tempCounter]["outputSizing"] = activityDataStruct[i]["outputSizing"];
+
+			tempCounter++;
+		}
+	}
+
+	// Copies orderable items to activityTempDataStore2
+	tempCounter = 0;
+	for (int i = 0; i < activityDataStruct.size(); i++) {
+		if (activityDataStruct[i]["orderable"]) {
+			activityTempDataStore2[tempCounter]["colName"] = activityDataStruct[i]["altColumnName"];
+			activityTempDataStore2[tempCounter]["colDesc"] = activityDataStruct[i]["columnDescription"];
+			activityTempDataStore2[tempCounter]["outputSizing"] = activityDataStruct[i]["outputSizing"];
+
+			tempCounter++;
+		}
+	}
+
+	// Copies listable items to activityTempDataStore3
+	tempCounter = 0;
+	for (int i = 0; i < activityDataStruct.size(); i++) {
+		if (activityDataStruct[i]["selected"]) {
+			activityTempDataStore3[tempCounter]["colName"] = activityDataStruct[i]["altColumnName"];
+			activityTempDataStore3[tempCounter]["colDesc"] = activityDataStruct[i]["columnDescription"];
+			activityTempDataStore3[tempCounter]["outputSizing"] = activityDataStruct[i]["outputSizing"];
+
+			tempCounter++;
+		}
+	}
+
+	std::string preparedStatement = "SELECT " + columnNamesGen(activityDataStruct, "selected", "altColumnName") + " FROM " + innerJoin + " WHERE ";
+
+	int counter = 0;
+	std::string criteriaStringUser = "Criteria: SELECT WHERE ";
+	std::string criteriaStringSys = "";
+	std::vector<std::string> criterias;
+
+	do {
+		heading("Searching Activity Entries.");
+		printLine();
+		if (counter > 0) {
+			cout << "\nCurrent " << criteriaStringUser << endl;
+			cout << "\nWould you like an \'OR\' join towards the previous criteria? Default: \'AND\' join" << endl;
+			if (decider()) {
+				criteriaStringSys += " OR ";
+				criteriaStringUser += " OR ";
+			}
+			else {
+				criteriaStringSys += " AND ";
+				criteriaStringUser += " AND ";
+			}
+		}
+
+		heading("Searching Activity Entries.");
+		printLine();
+		menuGen(activityTempDataStore, "colDesc");
+
+		if (counter > 0) {
+			cout << "\nCurrent " << criteriaStringUser << endl;
+
+		}
+
+		int selection;
+		while (true) {
+			cout << "\nPlease select the column you would like to search by: ";
+			try {
+				selection = inputInt();
+				if (selection > activityTempDataStore.size() || selection < 0) {
+					throw "Error";
+				}
+				else {
+					break;
+				}
+			}
+			catch (...) {
+				cout << "Please input a valid selection." << endl;
+				pause();
+			}
+
+		}
+
+		// Search criteria input.
+		heading("ACTIVITY: Search Criteria Creation");
+		printLine();
+		if (counter > 0) {
+			cout << "\nCurrent " << criteriaStringUser << endl << endl;
+
+		}
+		cout << "Selected " << activityTempDataStore[selection]["colDesc"] << endl;
+
+		// To get search criteria
+		cout << "Please input the search criteria. You may use SQL-based wildcards like \"%\"\n\n> ";
+
+		std::string criteria = "";
+		std::getline(cin, criteria);
+
+		criterias.push_back(criteria);
+		criteriaStringUser += activityTempDataStore[selection]["colDesc"];
+		criteriaStringUser += " is \"" + criteria + "\" \n";
+
+		cout << "\n\n" << criteriaStringUser;
+
+
+		criteriaStringSys += returnString(activityTempDataStore[selection]["colName"]) + " like ?";
+
+		counter++;
+
+		cout << "\nWould you like to add criteria? " << endl;
+
+	} while (decider());
+
+
+	int selection = 0;
+	// Make and validate selection
+	while (true) {
+		heading("Search Result");
+		printLine();
+
+		cout << "How would you like to order your results by?" << endl;
+		menuGen(activityTempDataStore2, "colDesc");
+		selection = inputInt();
+		if (selection < activityTempDataStore2.size()) {
+			break;
+		}
+		else {
+			cout << "Please input a valid selection. " << endl;
+			pause();
+		}
+
+	}
+
+	heading("ACTIVITY: Search Result");
+	printLine();
+	cout << "Search statement " << criteriaStringUser << endl;
+
+	preparedStatement += criteriaStringSys + " ORDER BY " + returnString(activityTempDataStore2[selection]["colName"]);
+
+
+	// Print table headings
+	int lineSize = 0;
+	for (int i = 0; i < activityDataStruct.size(); i++) {
+		if (activityDataStruct[i]["selected"]) {
+			cout << left << std::setw(activityDataStruct[i]["outputSizing"]) << returnString(activityDataStruct[i]["columnDescription"]);
+
+			lineSize += activityDataStruct[i]["outputSizing"];
+
+		}
+	}
+
+	cout << endl;
+
+	printLine('=', lineSize);
+
+
+	try {
+		Session sess = getSessionDb();
+
+		auto mySess = sess.sql(preparedStatement);
+		for (int i = 0; i < criterias.size(); i++) {
+			mySess.bind(criterias[i]);
+		}
+
+		auto myRows = mySess.execute();
+
+		// Print table content
+		int rowCount = 0;
+		for (Row row : myRows.fetchAll()) {
+			for (int i = 0; i < row.colCount(); i++) {
+				cout << left << std::setw(activityTempDataStore3[i]["outputSizing"]) << row[i];
+			}
+			cout << endl;
+
+			rowCount++;
+		}
+
+		cout << endl;
+
+		cout << "Returned " << rowCount << " results." << endl;
+	}
+	catch (const mysqlx::Error& err)
+	{
+		cout << "ERROR: " << err << endl;
+	}
+	catch (...) {
+		cout << "Unknown Error";
+	}
+
+	pause();
+}
+
+void activityUpdateEntry(int userID) {
+	// Copies relavant data to activityTempDataStore3
+	int tempCounter = 0;
+	for (int i = 0; i < activityDataStruct.size(); i++) {
+		if (activityDataStruct[i]["showDuringDeletion"]) {
+			activityTempDataStore3[tempCounter]["colName"] = activityDataStruct[i]["altColumnName"];
+			activityTempDataStore3[tempCounter]["colDesc"] = activityDataStruct[i]["columnDescription"];
+			activityTempDataStore3[tempCounter]["outputSizing"] = activityDataStruct[i]["outputSizing"];
+			activityTempDataStore3[tempCounter]["showDuringDeletion"] = activityDataStruct[i]["showDuringDeletion"];
+
+			tempCounter++;
+		}
+	}
+
+	// To ask if the user wants to search for the relavant data
+	while (true) {
+		heading("Update Activity Entries.");
+		printLine();
+		cout << "Updating will be based on activity ID. Do you want to search activity data?" << endl;
+
+		if (!decider()) {
+			break;
+		}
+		activitySearchEntry();
+	}
+
+
+	std::string activityID;
+	std::string activityName;
+	try {
+		while (true) {
+			system("cls");
+			heading("Update Activity Entries.");
+			printLine();
+			cout << "Please input activity ID to update: ";
+			getline(cin, activityID);
+
+			std::string preparedStatement1 = "SELECT " + columnNamesGen(activityTempDataStore3, "showDuringDeletion", "colName") + " FROM " + innerJoin + " WHERE a.activityID=?";
+
+			Session sess = getSessionDb();
+
+			auto myRows = sess.sql(preparedStatement1).bind(activityID).execute();
+
+			printLine();
+
+			// If there are no relavant rows, prompt the user to re-input
+			if (myRows.count() > 0) {
+				cout << "Are you sure you want to update the activity with the following entry?" << endl;
+				for (Row row : myRows.fetchAll()) {
+					for (int i = 0; i < row.colCount(); i++) {
+						cout << left << std::setw(30) << returnString(activityTempDataStore3[i]["colDesc"]) << "\t: ";
+						cout << row[i] << endl;
+					}
+					cout << endl;
+				}
+
+				// Get activity name
+				try {
+					std::stringstream ss1;
+
+					Session sess = getSessionDb();
+					auto mySess = sess.sql("SELECT activityName FROM " + thisTableName + " WHERE activityID=?").bind(activityID).execute();
+
+					auto myRow = mySess.fetchOne();
+
+					myRow.get(0).print(ss1);
+					activityName = ss1.str();
+				}
+				catch (const mysqlx::Error& err)
+				{
+					cout << "ERROR: " << err << endl;
+				}
+				catch (...) {
+					cout << "Activity Name: Unknown Error";
+				}
+
+
+				if (decider()) {
+					break;
+				}
+			}
+			else {
+				cout << "No member with activity ID " << activityID << " found." << endl;
+				cout << "Try again?" << endl;
+
+				if (!decider()) {
+					return;
+				}
+				pause();
+			}
+		}
+
+		cout << endl;
+	}
+	catch (const mysqlx::Error& err)
+	{
+		cout << "ERROR: " << err << endl;
+	}
+	catch (...) {
+		cout << "Activity Info: Unknown Error";
+	}
+	pause();
+	std::string preparedStatement2 = "UPDATE " + thisTableName + " SET ";
+	int selection;
+	int noOfChanges = 0;
+	std::vector<int> selected;
+
+	// Selection to update.
+	int counter = 0;
+	for (int i = 0; i < activityDataStruct.size(); i++) {
+		if (activityDataStruct[i]["input"]) {
+			activityTempDataStore[counter]["colName"] = activityDataStruct[i]["columnName"];
+			activityTempDataStore[counter]["colDesc"] = activityDataStruct[i]["columnDescription"];
+			activityTempDataStore[counter]["notSelected"] = true;
+			counter++;
+		}
+	}
+
+
+	while (true) {
+		heading("Updating activity entry - " + activityName);
+		printLine();
+
+		while (true) {
+		InvalidSelection:
+			menuGen(activityTempDataStore, "colDesc", "notSelected");
+			selection = inputInt();
+
+			// Check if selection was previously selected
+			for (int i = 0; i < selected.size(); i++) {
+				if (selection == selected[i]) {
+					cout << "Please input a valid selection." << endl;
+					pause();
+					goto InvalidSelection;
+				}
+			}
+			break;
+
+		}
+
+		std::string newData = "";
+		cout << "Please input the new data for " << activityTempDataStore[selection]["colDesc"] << endl;
+		getline(cin, newData);
+
+		if (noOfChanges > 0) {
+			preparedStatement2 += ",";
+		}
+
+		preparedStatement2 += returnString(activityTempDataStore[selection]["colName"]) + "=?";
+
+		// Add changes into json
+		activityTempDataStore2[noOfChanges]["colDesc"] = activityTempDataStore[selection]["colDesc"];
+		activityTempDataStore2[noOfChanges]["colData"] = newData;
+
+		activityTempDataStore[selection]["notSelected"] = false;
+		selected.push_back(selection);
+
+		noOfChanges++;
+
+		if (noOfChanges >= activityTempDataStore.size()) {
+			break;
+		}
+
+		cout << "Do you want to add more data to update?" << endl;
+
+		if (!decider()) {
+			break;
+		}
+	}
+	preparedStatement2 += " WHERE activityID=?";
+
+	cout << preparedStatement2 << endl;
+
+	// Show current changes
+	clearScreen();
+	cout << "Current changes for activity \"" << activityName << "\" (ID " << activityID << ") are :" << endl;
+	for (int i = 0; i < activityTempDataStore2.size(); i++) {
+		cout << left << std::setw(20) << returnString(activityTempDataStore2[i]["colDesc"]);
+		cout << left << ": " << returnString(activityTempDataStore2[i]["colData"]);
+		cout << endl;
+	}
+	cout << endl;
+	cout << "Are you sure you want to update the following data?" << endl;
+
+	if (decider()) {
+		Session sess = getSessionDb();
+		auto mySess = sess.sql(preparedStatement2);
+
+		for (int i = 0; i < activityTempDataStore2.size(); i++) {
+			mySess = mySess.bind(returnString(activityTempDataStore2[i]["colData"]));
+		}
+
+		mySess = mySess.bind(activityID);
+
+		auto myRows = mySess.execute();
+
+		cout << endl;
+
+		if (myRows.getAffectedItemsCount() > 0) {
+			cout << "Update succesful." << endl;
+		}
+		else {
+			cout << "There are probably some errors on the way." << endl;
+		}
+	}
+	else {
+		cout << "Decided to NOT update. ";
+	}
+	pause();
 }
 
 void activityDeleteEntry() {
