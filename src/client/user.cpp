@@ -321,40 +321,48 @@ void userAddEntry() {
 	int memberID;
 	std::string matrixNo;
 	// Getting Matrix No
-	while (recover) {
-		cout << left << std::setw(30) << "Matrix No." << "\t: ";
+	while (true) {
+		cout << left << std::setw(30) << "Matrix No.*" << "\t: ";
 		getline(cin, matrixNo);
 
 		try {
 			Session sess = getSessionDb();
 
 			// Check if user already exist
-			auto myRows1 = sess.sql("SELECT * FROM " + innerJoin + " WHERE matrixNo=?").bind(matrixNo).execute();
+			auto myRows1 = sess.sql("SELECT a.userID FROM " + innerJoin + " WHERE b.matrixNo=?").bind(matrixNo).execute();
+			cout << myRows1.count() << endl;
 
-			if (myRows1.count() > 0) {
-				cout << "User already exist. Returning to menu." << endl;
-				return;
+			if (myRows1.count() == 0) {
+				auto myRows2 = sess.sql("SELECT b.memberID FROM " + innerJoin + " WHERE b.matrixNo=?").bind(matrixNo).execute();
+				auto myRow2 = myRows2.fetchOne();
+
+				std::stringstream ss1;
+				myRow2.get(0).print(ss1);
+				memberID = std::stoi(ss1.str());
+
+				break;
 			}
+			else {
+				cout << "User already exist. Returning to menu." << endl;
+				pause();
+				return;
 
-			// Get memebrID if user does not exist
-			auto myRows2 = sess.sql("SELECT matrixNo FROM MEMBER WHERE matrixNo=?").bind(matrixNo).execute();
-
-			auto myRow2 = myRows2.fetchOne();
-
-			std::stringstream ss1;
-			myRow2.get(1).print(ss1);
-			memberID = std::stoi(ss1.str());
+			}
 		}
 		catch (const mysqlx::Error& err)
 		{
 			cout << "ERROR: " << err << endl;
 			cout << "Do you want to try database action again?" << endl;
-			recover = decider();
+			if (!decider()) {
+				return;
+			}
 		}
 		catch (...) {
 			cout << "Unknown Error";
 			cout << "Do you want to try database action again?" << endl;
-			recover = decider();
+			if (!decider()) {
+				return;
+			}
 		}
 	}
 
@@ -713,6 +721,15 @@ void userUpdateEntry() {
 
 // Delete entry
 void userDeleteEntry() {
+	// Copy relavant data to userTempDataStore
+	int tempCounter = 0;
+	for (int i = 0; i < userDataStruct.size(); i++) {
+		if (userDataStruct[i]["showDuringDeletion"]) {
+			userTempDataStore[tempCounter]["colDesc"] = userDataStruct[i]["columnDescription"];
+			tempCounter++;
+		}
+	}
+	
 	// To ask if the user wants to search for the relavant data
 	while (true) {
 		heading("Delete Member Entries.");
@@ -750,7 +767,7 @@ void userDeleteEntry() {
 				cout << "Are you sure you want to delete the following entry?" << endl;
 				for (Row row : myRows.fetchAll()) {
 					for (int i = 0; i < row.colCount(); i++) {
-						cout << userDataStruct[i]["columnDescription"] << "\t: ";
+						cout << returnString(userTempDataStore[i]["colDesc"]) << "\t: ";
 						cout << row[i] << endl;
 					}
 					cout << endl;
