@@ -12,6 +12,7 @@ void userMenu();
 void memberMenu();
 void additionalInformation();
 void activityMenu(int userID);
+void attendanceMenu(int userID);
 Session getSessionDb();
 
 int userID;
@@ -55,7 +56,7 @@ MenuStart:
 			activityMenu(userID);
 			break;
 		case 3:
-			//TODO: Attendance Menu
+			attendanceMenu(userID);
 			break;
 		case 4:
 			userMenu();
