@@ -269,7 +269,7 @@ void userSearchEntry() {
 	cout << endl;
 
 	printLine('=', lineSize);
-	
+
 
 	try {
 		Session sess = getSessionDb();
@@ -315,20 +315,58 @@ void userSearchEntry() {
 void userAddEntry() {
 	heading("User Creation");
 	printLine();
-	cout << "Please input the following data to facilitate for user creation.\n* Indicates that entries with that value must be unique." << endl << endl;
+	cout << "Please input the following data to facilitate for user creation.\n\nAn asterisk (*) indicates entries with mandatory input." << endl << endl;
 
-	int tempCounter = 0;
+	bool recover = true;
+	int memberID;
 	std::string matrixNo;
 	// Getting Matrix No
-	cout << left << std::setw(30) << "Matrix No." << "\t: ";
-	getline(cin, matrixNo);
+	while (recover) {
+		cout << left << std::setw(30) << "Matrix No." << "\t: ";
+		getline(cin, matrixNo);
+
+		try {
+			Session sess = getSessionDb();
+
+			// Check if user already exist
+			auto myRows1 = sess.sql("SELECT * FROM " + innerJoin + " WHERE matrixNo=?").bind(matrixNo).execute();
+
+			if (myRows1.count() > 0) {
+				cout << "User already exist. Returning to menu." << endl;
+				return;
+			}
+
+			// Get memebrID if user does not exist
+			auto myRows2 = sess.sql("SELECT matrixNo FROM MEMBER WHERE matrixNo=?").bind(matrixNo).execute();
+
+			auto myRow2 = myRows2.fetchOne();
+
+			std::stringstream ss1;
+			myRow2.get(1).print(ss1);
+			memberID = std::stoi(ss1.str());
+		}
+		catch (const mysqlx::Error& err)
+		{
+			cout << "ERROR: " << err << endl;
+			cout << "Do you want to try database action again?" << endl;
+			recover = decider();
+		}
+		catch (...) {
+			cout << "Unknown Error";
+			cout << "Do you want to try database action again?" << endl;
+			recover = decider();
+		}
+	}
+
+
+	int tempCounter = 0;
 	for (int i = 0; i < userDataStruct.size(); i++) {
 		std::string temp = "";
 		if (userDataStruct[i]["input"]) {
 			bool x = true;
 			while (x) {
 				std::string currString = returnString(userDataStruct[i]["columnDescription"]);
-				if (userDataStruct[i]["isUnique"]) {
+				if (userDataStruct[i]["compulsoryInput"]) {
 					currString += "*";
 				}
 
@@ -357,21 +395,21 @@ void userAddEntry() {
 
 	std::string preparedStatement1 = "INSERT INTO " + thisTableName + " (memberID, ";
 	preparedStatement1 += columnNamesGen(userTempDataStore, "getThis", "colName");
-	preparedStatement1 += ") VALUES ((SELECT memberID FROM MEMBER WHERE matrixNo=?)";
+	preparedStatement1 += ") VALUES (?";
 
 	for (int i = 0; i < userTempDataStore.size(); i++) {
 		preparedStatement1 += ", ?";
 	}
 	preparedStatement1 += ")";
 
-	bool recover = true;
+	recover = true;
 	while (recover) {
 		try {
 			Session sess = getSessionDb();
 
 			auto mySess = sess.sql(preparedStatement1);
 
-			mySess = mySess.bind(matrixNo);
+			mySess = mySess.bind(std::to_string(memberID));
 
 			for (int i = 0; i < userTempDataStore.size(); i++) {
 				mySess = mySess.bind(returnString(userTempDataStore[i]["colValue"]));
