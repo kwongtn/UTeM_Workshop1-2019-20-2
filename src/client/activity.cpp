@@ -901,11 +901,91 @@ void activityDeleteEntry() {
 	pause();
 }
 
+void activityListDetail() {
+	// Copies relavant data to activityTempDataStore3
+	int tempCounter = 0;
+	for (int i = 0; i < activityDataStruct.size(); i++) {
+		if (activityDataStruct[i]["showDuringDeletion"]) {
+			activityTempDataStore3[tempCounter]["colName"] = activityDataStruct[i]["altColumnName"];
+			activityTempDataStore3[tempCounter]["colDesc"] = activityDataStruct[i]["columnDescription"];
+			activityTempDataStore3[tempCounter]["outputSizing"] = activityDataStruct[i]["outputSizing"];
+			activityTempDataStore3[tempCounter]["showDuringDeletion"] = activityDataStruct[i]["showDuringDeletion"];
+
+			tempCounter++;
+		}
+	}
+
+	// To ask if the user wants to search for the relavant data
+	while (true) {
+		heading("Show Detailed Activity Entries");
+		printLine();
+		cout << "Detailed information will be shown based on activity ID. Do you want to search activity data?" << endl;
+
+		if (!decider()) {
+			break;
+		}
+		activitySearchEntry();
+	}
+
+
+	std::string activityID;
+	try {
+		while (true) {
+			system("cls");
+			heading("Show Detailed Activity Entries");
+			printLine();
+			cout << "Please input activity ID to show: ";
+			activityID = std::to_string(inputInt(false, true));
+
+			std::string preparedStatement1 = "SELECT " + columnNamesGen(activityTempDataStore3, "showDuringDeletion", "colName") + " FROM " + innerJoin + " WHERE a.activityID=?";
+
+			Session sess = getSessionDb();
+
+			auto myRows = sess.sql(preparedStatement1).bind(activityID).execute();
+
+			printLine();
+
+			// If there are no relavant rows, prompt the user to re-input
+			if (myRows.count() > 0) {
+				for (Row row : myRows.fetchAll()) {
+					for (int i = 0; i < row.colCount(); i++) {
+						cout << left << std::setw(20) << returnString(activityTempDataStore3[i]["colDesc"]) << "\t: ";
+						cout << row[i] << endl;
+					}
+					cout << endl;
+				}
+
+				pause();
+				return;
+			}
+			else {
+				cout << "No member with activity ID " << activityID << " found." << endl;
+				cout << "Try again?" << endl;
+
+				if (!decider()) {
+					return;
+				}
+			}
+		}
+
+		cout << endl;
+	}
+	catch (const mysqlx::Error& err)
+	{
+		cout << "ERROR: " << err << endl;
+		pause();
+	}
+	catch (...) {
+		cout << "Activity Info: Unknown Error";
+		pause();
+	}
+}
+
 void activityMenu(int userID) {
 	unsigned short int selection = 0;
 
 MenuStart:
-	json menuEntries = { "Add Activity", "List Activities", "Update Activity", "Delete Activity", "Search Activity" };
+	json menuEntries = { "Add Activity", "List Activities", "Update Activity", "Delete Activity", "Search Activity", "Get Detailed Information" };
 
 
 	clearScreen();
@@ -947,6 +1027,9 @@ MenuStart:
 			break;
 		case 5:
 			activitySearchEntry();
+			break;
+		case 6:
+			activityListDetail();
 			break;
 		case 10:
 			return;
