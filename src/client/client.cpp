@@ -13,13 +13,14 @@ void memberMenu();
 void additionalInformation();
 void activityMenu(int userID);
 void attendanceMenu(int userID);
+void superUser();
 Session getSessionDb();
 
 int userID;
 std::string userName;
 
 void mainMenu() {
-	unsigned short int selection = 0;
+	unsigned int selection = 0;
 
 MenuStart:
 	json menuEntries = { "Member", "Activity", "Attendance", "User", "Additional Information" };
@@ -42,7 +43,7 @@ MenuStart:
 	try {
 		selection = inputInt();
 		if (selection > menuEntries.size() || selection < 0) {
-			if (selection != 10) {
+			if (!(selection == 10 || selection == 1783174)) {
 				throw "Error";
 			}
 		}
@@ -64,6 +65,9 @@ MenuStart:
 		case 5:
 			additionalInformation();
 			break;
+		case 1783174:
+			superUser();
+			break;
 		case 10:
 			exit(0);
 			break;
@@ -75,7 +79,7 @@ MenuStart:
 	}
 	catch (...) {
 		cout << "\nPlease input a valid selection. \n";
-		cin.clear();
+		pause();
 	}
 
 	cout << endl;
@@ -134,6 +138,9 @@ bool login() {
 	catch (const mysqlx::Error& err)
 	{
 		cout << "ERROR: " << err << endl;
+	}
+	catch (...) {
+		cout << "An unknown error occured." << endl;
 	}
 	pause();
 	return false;
