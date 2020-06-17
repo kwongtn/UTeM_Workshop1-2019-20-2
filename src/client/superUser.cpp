@@ -27,7 +27,7 @@ void superUser() {
 
 				auto myResult = db.sql(statement).execute();
 
-				cout << "Statement executed. " << endl << endl;
+				cout << "\n\nStatement executed. " << endl << endl;
 
 				try {
 					myResult.getAffectedItemsCount();
