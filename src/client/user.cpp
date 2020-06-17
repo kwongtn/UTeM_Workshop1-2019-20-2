@@ -211,7 +211,7 @@ void userSearchEntry() {
 		cout << "Please input the search criteria. You may use SQL-based wildcards like \"%\"\n\n> ";
 
 		std::string criteria = "";
-		std::getline(cin, criteria);
+		getline(cin, criteria);
 
 		criterias.push_back(criteria);
 		criteriaStringUser += userTempDataStore[selection]["colDesc"];
@@ -330,10 +330,15 @@ void userAddEntry() {
 
 			// Check if user already exist
 			auto myRows1 = sess.sql("SELECT a.userID FROM " + innerJoin + " WHERE b.matrixNo=?").bind(matrixNo).execute();
-			cout << myRows1.count() << endl;
 
 			if (myRows1.count() == 0) {
-				auto myRows2 = sess.sql("SELECT b.memberID FROM " + innerJoin + " WHERE b.matrixNo=?").bind(matrixNo).execute();
+				auto myRows2 = sess.sql("SELECT memberID FROM MEMBER WHERE matrixNo=?").bind(matrixNo).execute();
+				if (myRows2.count() == 0) {
+					cout << "Member with matrix no. " << matrixNo << " does not exist. Returning to menu." << endl;
+					pause();
+					return;
+				}
+
 				auto myRow2 = myRows2.fetchOne();
 
 				std::stringstream ss1;
@@ -726,10 +731,12 @@ void userDeleteEntry() {
 	for (int i = 0; i < userDataStruct.size(); i++) {
 		if (userDataStruct[i]["showDuringDeletion"]) {
 			userTempDataStore[tempCounter]["colDesc"] = userDataStruct[i]["columnDescription"];
-			tempCounter++;
+			userTempDataStore[tempCounter]["altColumnName"] = userDataStruct[i]["altColumnName"];
+			userTempDataStore[tempCounter]["showDuringDeletion"] = userDataStruct[i]["showDuringDeletion"];
+			cout << tempCounter++;
 		}
 	}
-	
+	pause();
 	// To ask if the user wants to search for the relavant data
 	while (true) {
 		heading("Delete Member Entries.");
@@ -745,16 +752,14 @@ void userDeleteEntry() {
 
 	std::string matrixNo;
 	try {
-		do {
+		while (true) {
 			system("cls");
 			heading("Delete Member Entries.");
 			printLine();
 			cout << "Please input member matrix no to delete: ";
 			getline(cin, matrixNo);
 
-			userTempDataStore.clear();
-
-			std::string preparedStatement1 = "SELECT " + columnNamesGen(userDataStruct, "showDuringDeletion", "altColumnName") + " FROM " + innerJoin + " WHERE b.matrixNo=?";
+			std::string preparedStatement1 = "SELECT " + columnNamesGen(userTempDataStore, "showDuringDeletion", "altColumnName") + " FROM " + innerJoin + " WHERE b.matrixNo=?";
 
 			Session sess = getSessionDb();
 
@@ -767,7 +772,7 @@ void userDeleteEntry() {
 				cout << "Are you sure you want to delete the following entry?" << endl;
 				for (Row row : myRows.fetchAll()) {
 					for (int i = 0; i < row.colCount(); i++) {
-						cout << returnString(userTempDataStore[i]["colDesc"]) << "\t: ";
+						cout << left << std::setw(30) << returnString(userTempDataStore[i]["colDesc"]) << "\t: ";
 						cout << row[i] << endl;
 					}
 					cout << endl;
@@ -776,9 +781,17 @@ void userDeleteEntry() {
 			}
 			else {
 				cout << "No member with matrix no. " << matrixNo << " found." << endl;
-				cout << "Try again?" << endl;
+				cout << "Try again?" << endl; 
+				if (decider()) {
+					continue;
+				}
+				else {
+					cout << "Returning to main menu." << endl;
+					pause();
+					return;
+				}
 			}
-		} while (decider());
+		}
 
 		cout << endl;
 

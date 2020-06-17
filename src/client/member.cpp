@@ -691,8 +691,6 @@ void memberDeleteEntry() {
 			cout << "Please input member matrix no to delete: ";
 			getline(cin, matrixNo);
 
-			memberTempDataStore.clear();
-
 			std::string preparedStatement1 = "SELECT " + columnNamesGen(memberDataStruct, "showDuringDeletion", "columnName") + " FROM " + thisTableName + " WHERE matrixNo=?";
 
 			Session sess = getSessionDb();
