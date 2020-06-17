@@ -14,6 +14,7 @@ void additionalInformation();
 void activityMenu(int userID);
 void attendanceMenu(int userID);
 void superUser();
+bool testSession();
 Session getSessionDb();
 
 int userID;
@@ -154,52 +155,30 @@ int main() {
 
 	MoveWindow(console, r.left, r.top, 5000, 500, TRUE); // 800 width, 100 height
 	*/
-	/* while (!login()) {}*/
 
-	mainMenu();
-
-	try {
-		using namespace ::mysqlx;
-
-		Session sess(
-			SessionOption::HOST, DB_ADDRESS,
-			SessionOption::PORT, DB_PORT,
-			SessionOption::USER, DB_LOGIN,
-			SessionOption::PWD, DB_PASS
-		);
-
-		cout << "Connection success!" << endl;
-
-		// Access schema
-		Schema db = sess.getSchema(SCHEMA);
-
-		cout << "Completed getting schema." << endl;
-
-		// Access table
-		Table tb = db.getTable("MEMBER");
-
-		cout << "Completed getting table." << endl;
-
-		RowResult result = tb.select("memberID", "engName").execute();
-
-		cout << "Completed selecting table columns." << endl;
-
-		for (Row row : result.fetchAll()) {
-
-			for (int i = 0; i < row.colCount(); i++) {
-				cout << row[i] << "\t";
+	while (true) {
+		if (!testSession()) {
+			cout << "There may be a connection problem. Open diagnostics?" << endl;
+			if (decider()) {
+				additionalInformation();
 			}
-			cout << endl;
+		}
+		else {
+			break;
 		}
 
-		cout << "\nComplete output." << endl;
-	}
-	catch (const mysqlx::Error& err)
-	{
-		cout << "ERROR: " << err << endl;
 	}
 
+	/*
+	// Makes window full screen
+	keybd_event(VK_MENU, 0x38, 0, 0);
+	keybd_event(VK_RETURN, 0x1c, 0, 0);
+	keybd_event(VK_RETURN, 0x1c, KEYEVENTF_KEYUP, 0);
+	keybd_event(VK_MENU, 0x38, KEYEVENTF_KEYUP, 0);
+	while (!login()) {}
+	*/
 
+	mainMenu();
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
