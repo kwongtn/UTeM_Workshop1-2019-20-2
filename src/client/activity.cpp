@@ -864,7 +864,7 @@ void activityDeleteEntry() {
 				break;
 			}
 			else {
-				cout << "No member with activity ID " << activityID << " found." << endl;
+				cout << "No activity with ID " << activityID << " found." << endl;
 				cout << "Try again?" << endl;
 			}
 		} while (decider());
@@ -883,16 +883,25 @@ void activityDeleteEntry() {
 	std::string preparedStatement2 = "DELETE FROM " + thisTableName + " WHERE activityID=?";
 
 	if (decider()) {
-		Session sess = getSessionDb();
-		auto myRows = sess.sql(preparedStatement2).bind(activityID).execute();
+		try {
+			Session sess = getSessionDb();
+			auto myRows = sess.sql(preparedStatement2).bind(activityID).execute();
 
-		cout << endl;
+			cout << endl;
 
-		if (myRows.getAffectedItemsCount() > 0) {
-			cout << "Deletion succesful. " << myRows.getAffectedItemsCount() << " rows affected." << endl;
+			if (myRows.getAffectedItemsCount() > 0) {
+				cout << "Deletion succesful. " << myRows.getAffectedItemsCount() << " rows affected." << endl;
+			}
+			else {
+				cout << "There are probably some errors on the way." << endl;
+			}
 		}
-		else {
-			cout << "There are probably some errors on the way." << endl;
+		catch (const mysqlx::Error& err)
+		{
+			cout << "ERROR: " << err << endl;
+		}
+		catch (...) {
+			cout << "An unknown error occured." << endl;
 		}
 	}
 	else {
