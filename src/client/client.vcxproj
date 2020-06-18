@@ -152,6 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="activity.cpp" />
+    <ClCompile Include="analysis.cpp" />
     <ClCompile Include="attendance.cpp" />
     <ClCompile Include="client.cpp" />
     <ClCompile Include="db_utils.cpp" />

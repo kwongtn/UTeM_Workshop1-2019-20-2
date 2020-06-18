@@ -14,6 +14,7 @@ void memberMenu();
 void additionalInformation();
 void activityMenu(int userID);
 void attendanceMenu(int userID);
+void analysisMenu();
 void superUser();
 bool testSession();
 Session getSessionDb();
@@ -155,6 +156,9 @@ int main() {
 				break;
 			case 4:
 				userMenu();
+				break;
+			case 5:
+				analysisMenu();
 				break;
 			case 6:
 				additionalInformation();
