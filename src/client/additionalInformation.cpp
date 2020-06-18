@@ -7,7 +7,10 @@ bool testDb(std::string);
 Session getSessionDb();
 
 void additionalInformation() {
-	system("cls");
+	heading("Additional diagnostic information");
+	printLine();
+
+	cout << "Please contact your system administrator for special access codes if you really do need them." << endl << endl;
 
 	// C++ Version
 	cout << "===== C++ Version =====" << endl;

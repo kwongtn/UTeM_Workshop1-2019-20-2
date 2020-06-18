@@ -5,6 +5,7 @@
 #include <array>
 #include <vector>
 #include <sstream>
+#include <windows.h>
 #include <mysqlx/xdevapi.h>
 #include "../libs/json.hpp"
 
@@ -19,10 +20,10 @@ using json = nlohmann::json;
 
 inline void printLine(char character = '=', int length = 30) {
 	for (int i = 0; i < length; i++) {
-		std::cout << character;
+		cout << character;
 	}
 
-	std::cout << std::endl;
+	cout << "\n";
 }
 
 inline void pause() {

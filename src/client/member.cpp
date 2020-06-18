@@ -582,7 +582,6 @@ void memberUpdateEntry() {
 		printLine();
 
 		while (true) {
-		InvalidSelection:
 			menuGen(memberTempDataStore, "colDesc", "notSelected");
 			selection = inputInt();
 
@@ -591,7 +590,7 @@ void memberUpdateEntry() {
 				if (selection == selected[i]) {
 					cout << "Please input a valid selection." << endl;
 					pause();
-					goto InvalidSelection;
+					continue;
 				}
 			}
 			break;
@@ -617,7 +616,7 @@ void memberUpdateEntry() {
 
 		noOfChanges++;
 
-		if (noOfChanges >= memberTempDataStore.size()) {
+		if (selected.size() >= memberTempDataStore.size()) {
 			break;
 		}
 
