@@ -48,6 +48,16 @@ inline std::string returnString(json i) {
 	return i;
 }
 
+inline int menuGen(json rowNames) {
+	int j = 0;
+	for (int i = 0; i < rowNames.size(); i++) {
+		cout << i << "\t" << returnString(rowNames[i]) << endl;
+		j++;
+	}
+	cout << endl;
+	return j;
+}
+
 
 inline int menuGen(json rowNames, std::string myOutput) {
 	int j = 0;
@@ -117,6 +127,26 @@ inline bool jsonContains(json myJSON, std::string element) {
 	return false;
 }
 
+// Whether a vector contains a value
+template <typename T1>
+inline bool vectorContains(std::vector<T1> myVector, T1 against) {
+	try {
+		if (myVector.size() == 0) {
+			return false;
+		}
+		for (int i = 0; i < myVector.size(); i++) {
+			if (myVector[i] == against) {
+				return true;
+			}
+		}
+		return false;
+
+	}
+	catch (...) {
+		return false;
+	}
+}
+
 inline int inputInt(bool prompter = true, bool forceInput = true) {
 	std::string myString = "";
 	int i;
@@ -153,4 +183,21 @@ inline int inputInt(bool prompter = true, bool forceInput = true) {
 
 	return i;
 
+}
+
+inline int toInt(std::string myString) {
+	try
+	{
+		int i = std::stoi(myString);
+		return i;
+	}
+	catch (std::invalid_argument const& e)
+	{
+		cout << "Bad input: std::invalid_argument thrown." << '\n';
+	}
+	catch (std::out_of_range const& e)
+	{
+		cout << "Integer overflow: std::out_of_range thrown. Please re-input." << '\n';
+	}
+	return 0;
 }
