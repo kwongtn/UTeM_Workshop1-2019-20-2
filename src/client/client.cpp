@@ -16,6 +16,7 @@ void activityMenu(int userID);
 void attendanceMenu(int userID);
 void analysisMenu();
 void superUser();
+void exportImportMenu();
 bool testSession();
 Session getSessionDb();
 
@@ -118,7 +119,7 @@ int main() {
 	unsigned int selection = 0;
 
 	while (true) {
-		json menuEntries = { "Member", "Activity", "Attendance", "User\n", "Analysis\n" ,"Additional Information" };
+		json menuEntries = { "Member", "Activity", "Attendance", "User\n", "Analysis\n" ,"Additional Information", "Data Administration" };
 
 		clearScreen();
 
@@ -162,6 +163,9 @@ int main() {
 				break;
 			case 6:
 				additionalInformation();
+				break;
+			case 7:
+				exportImportMenu();
 				break;
 			case 1783174:
 				superUser();

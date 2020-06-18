@@ -156,6 +156,7 @@
     <ClCompile Include="attendance.cpp" />
     <ClCompile Include="client.cpp" />
     <ClCompile Include="db_utils.cpp" />
+    <ClCompile Include="exportImport.cpp" />
     <ClCompile Include="member.cpp" />
     <ClCompile Include="sha256.cpp" />
     <ClCompile Include="superUser.cpp" />
