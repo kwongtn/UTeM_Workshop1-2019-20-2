@@ -607,8 +607,7 @@ MenuStart:
 		"MEMBER     : No. of Students Based on Hostel",
 		"ATTENDANCE : Custom grouping",
 		"MEMBER     : Attendance",
-		"ATTEND
-		ANCE : No. of Entries inputted for each user",
+		"ATTENDANCE : No. of Entries inputted for each user",
 		"ATTENDANCE : For each activity"
 	};
 

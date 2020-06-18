@@ -34,15 +34,12 @@ CREATE TABLE `MEMBER` (
     `memberID` INT AUTO_INCREMENT NOT NULL,
     `engName` TINYTEXT NOT NULL,
     `matrixNo` CHAR(10) NOT NULL,
-    `icNo` CHAR(12) NOT NULL,
-    `email` TINYTEXT NOT NULL,
-    `phoneNo` TINYTEXT NOT NULL,
-    `facebookID` TINYTEXT NOT NULL,
     `signupTime` TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     `updateTime` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
     `hostel` TINYTEXT,
     PRIMARY KEY (`memberID`),
-    UNIQUE (`memberID`)
+    UNIQUE (`memberID`),
+    UNIQUE (`matrixNo`)
 );
 
 CREATE TABLE `ATTENDANCE` (
@@ -57,15 +54,20 @@ CREATE TABLE `ATTENDANCE` (
 
 CREATE TABLE `ACTIVITY` (
     `activityID` INT AUTO_INCREMENT NOT NULL,
+    `activityName` TEXT NOT NULL,
     `activityDesc` TEXT,
     `userID` INT NOT NULL,
-    `activityStart` DATETIME NOT NULL,
-    `activityEnd` DATETIME NOT NULL,
+    `activityYear` INT NOT NULL,
+    `activityMonth` INT NOT NULL,
+    `activityDay` INT NOT NULL,
+    `activityHour` INT NOT NULL,
+    `activityMinute` INT NOT NULL,
     `activityLocation` TEXT NOT NULL,
     `createTime` TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     `updateTime` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
     PRIMARY KEY (`activityID`),
-    UNIQUE (`activityID`)
+    UNIQUE (`activityID`),
+    UNIQUE (`activityName`)
 );
 
 -- Assigning foreign keys to tables and linking them up
