@@ -2,6 +2,7 @@
 //
 
 #include "utils.h"
+#include "sha256.h"
 // #define _WIN32_WINNT 0x0500
 // #include <windows.h>
 
@@ -99,6 +100,7 @@ bool login() {
 	cout << "Password\t: ";
 	getline(cin, password);
 
+
 	std::string preparedStatement = "";
 	preparedStatement += "SELECT a.engName, b.userID FROM MEMBER a INNER JOIN USER b ON a.memberID=b.memberID WHERE ";
 	preparedStatement += "a.matrixNo=? AND b.pw=?";
@@ -108,7 +110,7 @@ bool login() {
 
 		Session sess = getSessionDb();
 
-		auto myRows = sess.sql(preparedStatement).bind(login, password).execute();
+		auto myRows = sess.sql(preparedStatement).bind(login, sha256(password)).execute();
 
 		if (myRows.count() != 1) {
 			cout << "Login error. Please try again." << endl;

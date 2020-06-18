@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "sha256.h"
 
 using namespace ::mysqlx;
 
@@ -391,7 +392,7 @@ void userAddEntry() {
 				else {
 					if (temp != "") {
 						userTempDataStore[tempCounter]["colName"] = userDataStruct[i]["columnName"];
-						userTempDataStore[tempCounter]["colValue"] = temp;
+						userTempDataStore[tempCounter]["colValue"] = sha256(temp);
 						userTempDataStore[tempCounter]["getThis"] = true;
 
 					}
@@ -665,7 +666,7 @@ void userUpdateEntry() {
 
 		// Add changes into json
 		userTempDataStore2[noOfChanges]["colDesc"] = userTempDataStore[selection]["colDesc"];
-		userTempDataStore2[noOfChanges]["colData"] = newData;
+		userTempDataStore2[noOfChanges]["colData"] = sha256(newData);
 
 		userTempDataStore[selection]["notSelected"] = false;
 		selected.push_back(selection);
