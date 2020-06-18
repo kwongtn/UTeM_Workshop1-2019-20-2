@@ -18,75 +18,8 @@ void superUser();
 bool testSession();
 Session getSessionDb();
 
-int userID;
-std::string userName;
-
-void mainMenu() {
-	unsigned int selection = 0;
-
-MenuStart:
-	json menuEntries = { "Member", "Activity", "Attendance", "User", "Additional Information" };
-
-	clearScreen();
-
-	heading();
-	cout << "Welcome. Please select your scope of action." << endl;
-
-	printLine();
-
-
-	for (int i = 0; i < menuEntries.size(); i++) {
-		cout << left << i + 1 << "\t" << returnString(menuEntries[i]) << endl;
-	}
-	cout << endl;
-	cout << left << 10 << "\t" << "Exit" << endl;
-
-
-	try {
-		selection = inputInt();
-		if (selection > menuEntries.size() || selection < 0) {
-			if (!(selection == 10 || selection == 1783174)) {
-				throw "Error";
-			}
-		}
-
-		switch (selection)
-		{
-		case 1:
-			memberMenu();
-			break;
-		case 2:
-			activityMenu(userID);
-			break;
-		case 3:
-			attendanceMenu(userID);
-			break;
-		case 4:
-			userMenu();
-			break;
-		case 5:
-			additionalInformation();
-			break;
-		case 1783174:
-			superUser();
-			break;
-		case 10:
-			exit(0);
-			break;
-		default:
-			cout << "Default pathway";
-			throw "Invalid Selection";
-			break;
-		}
-	}
-	catch (...) {
-		cout << "\nPlease input a valid selection. \n";
-		pause();
-	}
-
-	cout << endl;
-	goto MenuStart;
-}
+int userID = 1;
+std::string userName = "testUser";
 
 bool login() {
 	system("cls");
@@ -159,6 +92,7 @@ int main() {
 	*/
 
 	while (true) {
+		cout << "Running startup diagnostic test" << endl;
 		if (!testSession()) {
 			cout << "There may be a connection problem. Open diagnostics?" << endl;
 			if (decider()) {
@@ -177,10 +111,75 @@ int main() {
 	keybd_event(VK_RETURN, 0x1c, 0, 0);
 	keybd_event(VK_RETURN, 0x1c, KEYEVENTF_KEYUP, 0);
 	keybd_event(VK_MENU, 0x38, KEYEVENTF_KEYUP, 0);
-	while (!login()) {}
 	*/
+	while (!login()) {}
 
-	mainMenu();
+	unsigned int selection = 0;
+
+	while (true) {
+		json menuEntries = { "Member", "Activity", "Attendance", "User\n", "Analysis\n" ,"Additional Information" };
+
+		clearScreen();
+
+		heading();
+		cout << "Welcome " << userName << ". Please select your scope of action." << endl;
+
+		printLine();
+
+
+		for (int i = 0; i < menuEntries.size(); i++) {
+			cout << left << i + 1 << "\t" << returnString(menuEntries[i]) << endl;
+		}
+		cout << endl;
+		cout << left << 10 << "\t" << "Exit" << endl;
+
+
+		try {
+			selection = inputInt();
+			if (selection > menuEntries.size() || selection < 0) {
+				if (!(selection == 10 || selection == 1783174)) {
+					throw "Error";
+				}
+			}
+
+			switch (selection)
+			{
+			case 1:
+				memberMenu();
+				break;
+			case 2:
+				activityMenu(userID);
+				break;
+			case 3:
+				attendanceMenu(userID);
+				break;
+			case 4:
+				userMenu();
+				break;
+			case 6:
+				additionalInformation();
+				break;
+			case 1783174:
+				superUser();
+				break;
+			case 10:
+				cout << "Thank you for using attendance management system by KwongTN." << endl;
+				pause();
+				exit(0);
+				break;
+			default:
+				cout << "Default pathway";
+				throw "Invalid Selection";
+				break;
+			}
+		}
+		catch (...) {
+			cout << "\nPlease input a valid selection. \n";
+			pause();
+		}
+
+		cout << endl;
+	}
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
