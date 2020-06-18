@@ -1,5 +1,6 @@
-#include "utils.h"
+﻿#include "utils.h"
 #include <fstream>
+#include <chrono>
 
 using namespace ::mysqlx;
 
@@ -107,9 +108,10 @@ void exportFunc() {
 
 	heading("Export operation");
 	printLine();
-
+	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 	for (int i = 0; i < selected.size(); i++) {
 		if (selectionMenu[selected[i]]["tableName"] == "Member") {
+			std::chrono::steady_clock::time_point begin0 = std::chrono::steady_clock::now();
 			cout << "\nMEMBER" << endl;
 			cout << "|- Starting export from table \'Member\'" << endl;
 
@@ -143,6 +145,9 @@ void exportFunc() {
 
 				cout << "|- Exported " << rowCount << " of " << totalRowCount << " results from table \'Member\'." << endl;
 
+				std::chrono::steady_clock::time_point end0 = std::chrono::steady_clock::now();
+				cout << "|- Runtime: " << (std::chrono::duration_cast<std::chrono::microseconds>(end0 - begin0).count()) / 1000000.0 << " seconds. " << endl;
+
 				jsonSizer++;
 			}
 			catch (const mysqlx::Error& err)
@@ -154,6 +159,7 @@ void exportFunc() {
 			}
 		}
 		else if (selectionMenu[selected[i]]["tableName"] == "User") {
+			std::chrono::steady_clock::time_point begin0 = std::chrono::steady_clock::now();
 			cout << "\nUSER" << endl;
 			cout << "|- Starting export from table \'User\'" << endl;
 
@@ -181,6 +187,9 @@ void exportFunc() {
 
 				cout << "|- Exported " << rowCount << " of " << totalRowCount << " results from table \'User\'." << endl;
 
+				std::chrono::steady_clock::time_point end0 = std::chrono::steady_clock::now();
+				cout << "|- Runtime: " << (std::chrono::duration_cast<std::chrono::microseconds>(end0 - begin0).count()) / 1000000.0 << " seconds. " << endl;
+
 				jsonSizer++;
 			}
 			catch (const mysqlx::Error& err)
@@ -192,6 +201,7 @@ void exportFunc() {
 			}
 		}
 		else if (selectionMenu[selected[i]]["tableName"] == "Activity") {
+			std::chrono::steady_clock::time_point begin0 = std::chrono::steady_clock::now();
 			cout << "\nACTIVITY" << endl;
 			cout << "|- Starting export from table \'Activity\'" << endl;
 
@@ -232,6 +242,9 @@ void exportFunc() {
 				cout << endl;
 				cout << "|- Exported " << rowCount << " of " << totalRowCount << " results from table \'Activity\'." << endl;
 
+				std::chrono::steady_clock::time_point end0 = std::chrono::steady_clock::now();
+				cout << "|- Runtime: " << (std::chrono::duration_cast<std::chrono::microseconds>(end0 - begin0).count()) / 1000000.0 << " seconds. " << endl;
+
 				jsonSizer++;
 			}
 			catch (const mysqlx::Error& err)
@@ -243,6 +256,7 @@ void exportFunc() {
 			}
 		}
 		else if (selectionMenu[selected[i]]["tableName"] == "Attendance") {
+			std::chrono::steady_clock::time_point begin0 = std::chrono::steady_clock::now();
 			cout << "\nATTENDANCE" << endl;
 			cout << "|- Starting export from table \'Attendance\'" << endl;
 
@@ -257,6 +271,7 @@ void exportFunc() {
 				int totalRowCount = 0;
 				cout << "|- Assigning values - Level 1..." << endl;
 				for (Row row : myRows.fetchAll()) {
+					cout << "|- Attendance for activity #" << rowCount + 1 << endl;
 					std::stringstream ss1, ss2;
 					row.get(0).print(ss1);
 
@@ -265,14 +280,14 @@ void exportFunc() {
 					exportDataStruct[jsonSizer]["values"][rowCount]["activityID"] = toInt(activityID);
 
 					// Get activity name based on activity ID
-					cout << "|- Querying database - Level 2-1..." << endl;
+					cout << "|- |- Querying database - Level 2-1..." << endl;
 					auto myRows2 = sess.sql("SELECT activityName FROM ATTENDANCE a INNER JOIN ACTIVITY b ON a.activityID=b.activityID WHERE a.activityID=? GROUP BY a.activityID").bind(activityID).execute();
 					myRows2.fetchOne().get(0).print(ss2);
 					std::string activityName = ss2.str();
 					exportDataStruct[jsonSizer]["values"][rowCount]["activityName"] = activityName;
 
 					// Get activity name based on activity ID
-					cout << "|- Querying database - Level 2-2..." << endl;
+					cout << "|- |- Querying database - Level 2-2..." << endl;
 					auto myRows3 = sess.sql("SELECT matrixNo FROM ATTENDANCE a INNER JOIN MEMBER b ON a.memberID=b.memberID WHERE activityID=? GROUP BY b.matrixNo").bind(activityID).execute();
 
 					int counter = 0;
@@ -293,6 +308,9 @@ void exportFunc() {
 
 				cout << "|- Exported " << totalRowCount << " results from table \'Attendance\'." << endl;
 
+				std::chrono::steady_clock::time_point end0 = std::chrono::steady_clock::now();
+				cout << "|- Runtime: " << (std::chrono::duration_cast<std::chrono::microseconds>(end0 - begin0).count()) / 1000000.0 << " seconds. " << endl;
+
 				jsonSizer++;
 			}
 			catch (const mysqlx::Error& err)
@@ -310,6 +328,9 @@ void exportFunc() {
 	exportFile << exportDataStruct.dump(2) << endl;
 	cout << "|- Write complete. Closing file.." << endl;
 	exportFile.close();
+	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+	cout << endl;
+	cout << "Total Runtime: " << (std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()) / 1000000.0 << " seconds. " << endl;
 
 	pause();
 }
@@ -323,7 +344,7 @@ void exportImportMenu() {
 
 	while (true) {
 		json menuEntries = {
-			"Export Entries",
+			"Export Entries as JSON",
 			"Import Entries"
 		};
 
