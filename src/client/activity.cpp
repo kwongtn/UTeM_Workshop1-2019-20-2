@@ -637,7 +637,6 @@ void activityUpdateEntry(int userID) {
 	std::string activityName;
 	try {
 		while (true) {
-			system("cls");
 			heading("Update Activity Entries.");
 			printLine();
 			cout << "Please input activity ID to update: ";
@@ -653,6 +652,8 @@ void activityUpdateEntry(int userID) {
 
 			// If there are no relavant rows, prompt the user to re-input
 			if (myRows.count() > 0) {
+				heading("Update Confirmation");
+				printLine();
 				cout << "Are you sure you want to update the activity with the following entry?" << endl;
 				for (Row row : myRows.fetchAll()) {
 					for (int i = 0; i < row.colCount(); i++) {

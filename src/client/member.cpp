@@ -524,6 +524,8 @@ void memberUpdateEntry() {
 
 			// If there are no relavant rows, prompt the user to re-input
 			if (myRows.count() > 0) {
+				heading("Update Confirmation");
+				printLine();
 				cout << "Are you sure you want to update the member with the following entry?" << endl;
 				for (Row row : myRows.fetchAll()) {
 					for (int i = 0; i < row.colCount(); i++) {
