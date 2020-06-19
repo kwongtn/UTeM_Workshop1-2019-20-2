@@ -439,9 +439,10 @@ void importFunc(int userID) {
 					}
 					SqlResult result;
 					try {
-						std::string preparedStatement = "INSERT INTO USER (pw, memberID) VALUES (?, (SELECT memberID FROM MEMBER WHERE matrixNo=?))";
+						std::string salt = sha256(random_string());
+						std::string preparedStatement = "INSERT INTO USER (salt, pw, memberID) VALUES (?, ?, (SELECT memberID FROM MEMBER WHERE matrixNo=?))";
 
-						result = sess.sql(preparedStatement).bind(sha256(returnString(userjson[j]["pw"]))).bind(returnString(userjson[j]["matrixNo"])).execute();
+						result = sess.sql(preparedStatement).bind(salt).bind(sha256(salt + returnString(userjson[j]["pw"]))).bind(returnString(userjson[j]["matrixNo"])).execute();
 
 						if (result.getAffectedItemsCount() < 1) {
 							throw;
@@ -585,7 +586,7 @@ void importFunc(int userID) {
 						cout << "|- An unknown error occured on entry with index " << j << ". Check when operation is completed." << endl;
 					}
 				}
-				cout << "|- Imported " << internalCounter << " of " << totalSize << " values." << endl;
+				cout << "|- Imported " << internalCounter << " values." << endl;
 			}
 			else {
 				cout << "UNKNOWN COLUMN - Not Imported" << endl;

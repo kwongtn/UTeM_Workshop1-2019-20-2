@@ -314,15 +314,14 @@ void userSearchEntry() {
 
 // Create entry
 void userAddEntry() {
-	heading("User Creation");
-	printLine();
-	cout << "Please input the following data to facilitate for user creation.\n\nAn asterisk (*) indicates entries with mandatory input." << endl << endl;
-
 	bool recover = true;
 	int memberID;
 	std::string matrixNo;
 	// Getting Matrix No
 	while (true) {
+		heading("User Creation");
+		printLine();
+		cout << "Please input the following data to facilitate for user creation.\n\nAn asterisk (*) indicates entries with mandatory input." << endl << endl;
 		cout << left << std::setw(30) << "Matrix No.*" << "\t: ";
 		getline(cin, matrixNo);
 
@@ -373,61 +372,34 @@ void userAddEntry() {
 	}
 
 
-	int tempCounter = 0;
-	for (int i = 0; i < userDataStruct.size(); i++) {
-		std::string temp = "";
-		if (userDataStruct[i]["input"]) {
-			bool x = true;
-			while (x) {
-				std::string currString = returnString(userDataStruct[i]["columnDescription"]);
-				if (userDataStruct[i]["compulsoryInput"]) {
-					currString += "*";
-				}
+	std::string password = "";
+	std::string salt = sha256(random_string());
 
-				cout << left << std::setw(30) << currString << "\t: ";
-				getline(cin, temp);
-				if (userDataStruct[i]["compulsoryInput"] && temp == "") {
-					cout << "Please input a value.";
-				}
-				else {
-					if (temp != "") {
-						userTempDataStore[tempCounter]["colName"] = userDataStruct[i]["columnName"];
-						userTempDataStore[tempCounter]["colValue"] = sha256(temp);
-						userTempDataStore[tempCounter]["getThis"] = true;
+	while (true) {
+		cout << left << std::setw(30) << "Password*" << "\t: ";
+		getline(cin, password);
 
-					}
-					x = false;
-				}
-
-			}
-
-			tempCounter++;
-
+		if (password == "") {
+			cout << "Please enter a password." << endl;
+			pause();
 		}
+		else {
+			break;
+		}
+
 	}
 
+	password = sha256(salt + password);
 
-	std::string preparedStatement1 = "INSERT INTO " + thisTableName + " (memberID, ";
-	preparedStatement1 += columnNamesGen(userTempDataStore, "getThis", "colName");
-	preparedStatement1 += ") VALUES (?";
 
-	for (int i = 0; i < userTempDataStore.size(); i++) {
-		preparedStatement1 += ", ?";
-	}
-	preparedStatement1 += ")";
+	std::string preparedStatement1 = "INSERT INTO " + thisTableName + " (memberID, pw, salt) VALUES (?, ?, ?)";
 
 	recover = true;
 	while (recover) {
 		try {
 			Session sess = getSessionDb();
 
-			auto mySess = sess.sql(preparedStatement1);
-
-			mySess = mySess.bind(std::to_string(memberID));
-
-			for (int i = 0; i < userTempDataStore.size(); i++) {
-				mySess = mySess.bind(returnString(userTempDataStore[i]["colValue"]));
-			}
+			auto mySess = sess.sql(preparedStatement1).bind(memberID).bind(password).bind(salt);
 
 			auto myRows = mySess.execute();
 
@@ -618,99 +590,36 @@ void userUpdateEntry() {
 		pause();
 	}
 
-	std::string preparedStatement2 = "UPDATE " + thisTableName + " SET ";
-	int selection;
-	int noOfChanges = 0;
-	std::vector<int> selected;
-	userTempDataStore2.clear();
-	userTempDataStore.clear();
-
-	// Selection to update.
-	int counter = 0;
-	for (int i = 0; i < userDataStruct.size(); i++) {
-		if (userDataStruct[i]["input"]) {
-			userTempDataStore[counter]["colName"] = userDataStruct[i]["columnName"];
-			userTempDataStore[counter]["colDesc"] = userDataStruct[i]["columnDescription"];
-			userTempDataStore[counter]["notSelected"] = true;
-			counter++;
-		}
-	}
-
-
+	std::string password = "";
+	std::string salt = sha256(random_string());
 	while (true) {
-		heading("Updating member entry");
+		heading("Updating user entry");
 		printLine();
+		cout << "Please enter new password: ";
+		getline(cin, password);
 
-		while (true) {
-		InvalidSelection:
-			menuGen(userTempDataStore, "colDesc", "notSelected");
-			selection = inputInt();
-
-			// Check if selection was previously selected
-			for (int i = 0; i < selected.size(); i++) {
-				if (selection == selected[i]) {
-					cout << "Please input a valid selection." << endl;
-					pause();
-					goto InvalidSelection;
-				}
-			}
-			break;
-
+		if (password == "") {
+			cout << "Please enter a value for password" << endl;
+			pause();
 		}
-
-		std::string newData = "";
-		cout << "Please input the new data for " << userTempDataStore[selection]["colDesc"] << endl;
-		getline(cin, newData);
-
-		if (noOfChanges > 0) {
-			preparedStatement2 += ",";
-		}
-
-		preparedStatement2 += returnString(userTempDataStore[selection]["colName"]) + "=?";
-
-		// Add changes into json
-		userTempDataStore2[noOfChanges]["colDesc"] = userTempDataStore[selection]["colDesc"];
-		userTempDataStore2[noOfChanges]["colData"] = sha256(newData);
-
-		userTempDataStore[selection]["notSelected"] = false;
-		selected.push_back(selection);
-
-		noOfChanges++;
-
-		if (noOfChanges >= userTempDataStore.size()) {
-			break;
-		}
-
-		cout << "Do you want to add more data to update?" << endl;
-
-		if (!decider()) {
+		else {
 			break;
 		}
 	}
+
+	password = sha256(salt + password);
+
+	std::string preparedStatement2 = "UPDATE " + thisTableName + " SET salt=?, password=?";
 	preparedStatement2 += " WHERE memberID=(SELECT memberID FROM MEMBER WHERE matrixNo=?)";
 
-	cout << preparedStatement2 << endl;
-
 	// Show current changes
-	clearScreen();
-	cout << "Current changes for member with matrix no " << matrixNo << " are :" << endl;
-	for (int i = 0; i < userTempDataStore2.size(); i++) {
-		cout << left << std::setw(20) << returnString(userTempDataStore2[i]["colDesc"]);
-		cout << left << ": " << returnString(userTempDataStore2[i]["colData"]);
-		cout << endl;
-	}
-	cout << endl;
-	cout << "Are you sure you want to update the following data?" << endl;
+	heading("Updating user entry");
+	printLine();
+	cout << "Are you sure you want to update password?" << endl;
 
 	if (decider()) {
 		Session sess = getSessionDb();
-		auto mySess = sess.sql(preparedStatement2);
-
-		for (int i = 0; i < userTempDataStore2.size(); i++) {
-			mySess = mySess.bind(returnString(userTempDataStore2[i]["colData"]));
-		}
-
-		mySess = mySess.bind(matrixNo);
+		auto mySess = sess.sql(preparedStatement2).bind(salt, password, matrixNo);
 
 		auto myRows = mySess.execute();
 
@@ -785,7 +694,7 @@ void userDeleteEntry() {
 			}
 			else {
 				cout << "No member with matrix no. " << matrixNo << " found." << endl;
-				cout << "Try again?" << endl; 
+				cout << "Try again?" << endl;
 				if (decider()) {
 					continue;
 				}

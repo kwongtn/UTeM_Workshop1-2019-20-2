@@ -20,6 +20,7 @@ CREATE TABLE `USER` (
     `userID` INT AUTO_INCREMENT NOT NULL,
     `memberID` INT NOT NULL,
     `pw` TINYTEXT NOT NULL,
+    `salt` TINYTEXT NOT NULL,
     `createTime` TIMESTAMP 
         DEFAULT CURRENT_TIMESTAMP NOT NULL,
     `pwUpdate` TIMESTAMP
@@ -54,7 +55,7 @@ CREATE TABLE `ATTENDANCE` (
 
 CREATE TABLE `ACTIVITY` (
     `activityID` INT AUTO_INCREMENT NOT NULL,
-    `activityName` TEXT NOT NULL,
+    `activityName` VARCHAR(100) NOT NULL,
     `activityDesc` TEXT,
     `userID` INT NOT NULL,
     `activityYear` INT NOT NULL,

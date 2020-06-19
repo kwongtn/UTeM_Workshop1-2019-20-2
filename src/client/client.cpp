@@ -35,9 +35,41 @@ bool login() {
 	cout << "Password\t: ";
 	getline(cin, password);
 
+	// Get salt
+	std::string salt = "";
+	try {
+		Session sess = getSessionDb();
 
-	std::string preparedStatement = "";
-	preparedStatement += "SELECT a.engName, b.userID FROM MEMBER a INNER JOIN USER b ON a.memberID=b.memberID WHERE ";
+		auto myRows = sess.sql("SELECT salt FROM USER WHERE memberID=(SELECT memberID FROM MEMBER WHERE matrixNo=?)").bind(login).execute();
+
+		if (myRows.count() != 1) {
+			cout << "Login error. Please try again." << endl;
+			pause();
+			return false;
+		}
+		else {
+			// Write into salt variable
+			std::stringstream ss1, ss2;
+
+			auto myRow = myRows.fetchOne();
+
+			myRow.get(0).print(ss1);
+			salt = ss1.str();
+
+		}
+
+	}
+	catch (const mysqlx::Error& err)
+	{
+		cout << "ERROR: " << err << endl;
+	}
+	catch (...) {
+		cout << "An unknown error occured." << endl;
+	}
+
+	password = sha256(salt + password);
+
+	std::string preparedStatement = "SELECT a.engName, b.userID FROM MEMBER a INNER JOIN USER b ON a.memberID=b.memberID WHERE ";
 	preparedStatement += "a.matrixNo=? AND b.pw=?";
 
 	cout << "Verifying your login credentials, please wait." << endl;
@@ -45,7 +77,7 @@ bool login() {
 
 		Session sess = getSessionDb();
 
-		auto myRows = sess.sql(preparedStatement).bind(login, sha256(password)).execute();
+		auto myRows = sess.sql(preparedStatement).bind(login, password).execute();
 
 		if (myRows.count() != 1) {
 			cout << "Login error. Please try again." << endl;
