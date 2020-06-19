@@ -402,7 +402,7 @@ void countActivityAttendance() {
 	else {
 		preparedStatement += "SELECT activityID, activityName, activityDateTime, activityLocation, count(activityID), activityDesc FROM ";
 		preparedStatement += innerJoin;
-		preparedStatement += " GROUP BY activityID a ";
+		preparedStatement += " GROUP BY activityID ";
 
 	}
 

@@ -835,7 +835,7 @@ void activityDeleteEntry() {
 
 	std::string activityID;
 	try {
-		do {
+		while (true) {
 			system("cls");
 			heading("Delete Activity Entries.");
 			printLine();
@@ -867,8 +867,15 @@ void activityDeleteEntry() {
 			else {
 				cout << "No activity with ID " << activityID << " found." << endl;
 				cout << "Try again?" << endl;
+
+				if (decider()) {
+					continue;
+				}
+				else {
+					return;
+				}
 			}
-		} while (decider());
+		}
 
 		cout << endl;
 

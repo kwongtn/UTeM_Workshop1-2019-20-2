@@ -814,7 +814,7 @@ void attendanceDeleteEntry() {
 
 	int attendanceID;
 	try {
-		do {
+		while (true) {
 			system("cls");
 			heading("Delete Attendance Entries.");
 			printLine();
@@ -844,8 +844,14 @@ void attendanceDeleteEntry() {
 			else {
 				cout << "No member with attendance ID " << attendanceID << " found." << endl;
 				cout << "Try again?" << endl;
+				if (decider()) {
+					continue;
+				}
+				else {
+					return;
+				}
 			}
-		} while (decider());
+		}
 
 		cout << endl;
 

@@ -611,9 +611,11 @@ void userUpdateEntry() {
 	catch (const mysqlx::Error& err)
 	{
 		cout << "ERROR: " << err << endl;
+		pause();
 	}
 	catch (...) {
 		cout << "Unknown Error";
+		pause();
 	}
 
 	std::string preparedStatement2 = "UPDATE " + thisTableName + " SET ";
@@ -736,10 +738,9 @@ void userDeleteEntry() {
 			userTempDataStore[tempCounter]["colDesc"] = userDataStruct[i]["columnDescription"];
 			userTempDataStore[tempCounter]["altColumnName"] = userDataStruct[i]["altColumnName"];
 			userTempDataStore[tempCounter]["showDuringDeletion"] = userDataStruct[i]["showDuringDeletion"];
-			cout << tempCounter++;
 		}
 	}
-	pause();
+
 	// To ask if the user wants to search for the relavant data
 	while (true) {
 		heading("Delete Member Entries.");

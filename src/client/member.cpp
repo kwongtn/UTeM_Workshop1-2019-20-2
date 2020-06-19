@@ -685,7 +685,7 @@ void memberDeleteEntry() {
 
 	std::string matrixNo;
 	try {
-		do {
+		while (true){
 			system("cls");
 			heading("Delete Member Entries.");
 			printLine();
@@ -715,8 +715,16 @@ void memberDeleteEntry() {
 			else {
 				cout << "No member with matrix no. " << matrixNo << " found." << endl;
 				cout << "Try again?" << endl;
+
+				if (decider()) {
+					continue;
+				}
+				else {
+					return;
+				}
 			}
-		} while (decider());
+
+		}
 
 		cout << endl;
 
