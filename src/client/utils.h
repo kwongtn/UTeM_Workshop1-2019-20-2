@@ -37,7 +37,9 @@ inline void clearScreen() {
 
 inline void heading(std::string additional = "") {
 	system("cls");
-	cout << "Club Attendance Management System" << endl << endl;
+	cout << "############################################" << endl;
+	cout << "##   Club Attendance Management System   ###" << endl;
+	cout << "############################################" << endl << endl;
 
 	if (additional != "") {
 		cout << additional << endl;
