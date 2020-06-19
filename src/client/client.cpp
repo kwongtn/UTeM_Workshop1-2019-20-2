@@ -16,7 +16,7 @@ void activityMenu(int userID);
 void attendanceMenu(int userID);
 void analysisMenu();
 void superUser();
-void exportImportMenu();
+void exportImportMenu(int userID);
 bool testSession();
 Session getSessionDb();
 
@@ -165,7 +165,7 @@ int main() {
 				additionalInformation();
 				break;
 			case 7:
-				exportImportMenu();
+				exportImportMenu(userID);
 				break;
 			case 1783174:
 				superUser();

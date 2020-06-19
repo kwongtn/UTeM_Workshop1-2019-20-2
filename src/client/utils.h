@@ -114,7 +114,7 @@ inline bool decider(std::string custString = "Your selection (y / n): ") {
 }
 
 // Whether an array of values contain a key
-inline bool jsonContains(json myJSON, std::string element) {
+inline bool arrayContains(json myJSON, std::string element) {
 	if (myJSON.size() == 0) {
 		return false;
 	}

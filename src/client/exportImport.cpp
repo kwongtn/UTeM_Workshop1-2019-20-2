@@ -1,4 +1,5 @@
-﻿#include "utils.h"
+#include "utils.h"
+#include "sha256.h"
 #include <fstream>
 #include <chrono>
 
@@ -335,17 +336,294 @@ void exportFunc() {
 	pause();
 }
 
-void importFunc() {
+void importFunc(int userID) {
+	std::ifstream importFile;
+	std::string filePath = "D:\\testExport.json";
+	json importDataStruct;
+	json diagnosisDataStruct;
 
+	// Ask for input file path & check write access
+	while (true) {
+		heading("IMPORT from JSON");
+		printLine();
+
+		cout << "Please input the name (and path) of the file you would like to import from.\n> ";
+		getline(cin, filePath);
+
+		importFile.open(filePath);
+
+		if (importFile.is_open()) {
+			cout << "File succesfully opened." << endl;
+			pause();
+			break;
+		}
+		else {
+			cout << "Unable to open file. Exit to menu?" << endl;
+			if (decider()) {
+				return;
+			}
+		}
+
+	}
+	// Reads the json file
+	try {
+		importFile >> importDataStruct;
+	}
+	catch (...) {
+		cout << "Error with JSON file format. Returning to menu." << endl;
+		pause();
+		return;
+	}
+
+	heading("IMPORT from JSON - Data preview");
+	printLine();
+	cout << importDataStruct.dump(2) << endl;
+	cout << endl << "Do you want to import the data shown above?" << endl;
+	if (!decider()) {
+		return;
+	}
+
+	heading("IMPORT from JSON - Warning");
+	printLine();
+	cout << endl << "Data import will be done on a \"best effort\" basis. Unrecognized values will be ignored. You are responsible for diagnosis should data import fails. Continue?" << endl;
+	if (!decider()) {
+		return;
+	}
+
+	heading("IMPORT from JSON - Execution");
+	printLine();
+	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+	for (int i = 0; i < importDataStruct.size(); i++) {
+		std::chrono::steady_clock::time_point begin0 = std::chrono::steady_clock::now();
+		int internalCounter = 0;
+		try {
+			Session sess = getSessionDb();
+			if (importDataStruct[i]["type"] == "member") {
+				json memberjson = importDataStruct[i]["values"];
+				cout << "MEMBER" << endl;
+				cout << "|- Starting Import" << endl;
+				for (int j = 0; j < memberjson.size(); j++) {
+					if (!arrayContains(memberjson, "engName") || !arrayContains(memberjson, "matrixNo")) {
+						cout << "|- Error with value(s) at index " << j << ". Skipping entry." << endl;
+						continue;
+					}
+					SqlResult result;
+					try {
+						if (memberjson.contains("hostel")) {
+							std::string preparedStatement = "INSERT INTO MEMBER (engName, matrixNo, hostel) VALUES (?, ?, ?)";
+
+							result = sess.sql(preparedStatement).bind(returnString(memberjson[j]["engName"])).bind(returnString(memberjson[j]["matrixNo"])).bind(returnString(memberjson[j]["hostel"])).execute();
+						}
+						else {
+							std::string preparedStatement = "INSERT INTO MEMBER (engName, matrixNo) VALUES (?, ?)";
+
+							result = sess.sql(preparedStatement).bind(returnString(memberjson[j]["engName"])).bind(returnString(memberjson[j]["matrixNo"])).execute();
+						}
+						if (result.getAffectedItemsCount() < 1) {
+							throw;
+						}
+						internalCounter++;
+					}
+					catch (const mysqlx::Error& err)
+					{
+						cout << "|- Index " << j << " - ERROR: " << err << endl;
+					}
+					catch (...) {
+						cout << "|- An unknown error occured on entry with index " << j << ". Check when operation is completed." << endl;
+					}
+				}
+				cout << "|- Imported " << internalCounter << " of " << memberjson.size() << " values." << endl;
+			}
+			else if (importDataStruct[i]["type"] == "user") {
+				json userjson = importDataStruct[i]["values"];
+				cout << "USER" << endl;
+				cout << "|- Starting Import" << endl;
+				for (int j = 0; j < userjson.size(); j++) {
+					if (!arrayContains(userjson, "matrixNo") || !arrayContains(userjson, "pw")) {
+						cout << "|- Error with value(s) at index " << j << ". Skipping entry." << endl;
+						continue;
+					}
+					SqlResult result;
+					try {
+						std::string preparedStatement = "INSERT INTO USER (pw, memberID) VALUES (?, (SELECT memberID FROM MEMBER WHERE matrixNo=?))";
+
+						result = sess.sql(preparedStatement).bind(sha256(returnString(userjson[j]["pw"]))).bind(returnString(userjson[j]["matrixNo"])).execute();
+
+						if (result.getAffectedItemsCount() < 1) {
+							throw;
+						}
+						internalCounter++;
+					}
+					catch (const mysqlx::Error& err)
+					{
+						cout << "|- Index " << j << " - ERROR: " << err << endl;
+					}
+					catch (...) {
+						cout << "|- An unknown error occured on entry with index " << j << ". Check when operation is completed." << endl;
+					}
+				}
+				cout << "|- Imported " << internalCounter << " of " << userjson.size() << " values." << endl;
+			}
+			else if (importDataStruct[i]["type"] == "activity") {
+				json activityjson = importDataStruct[i]["values"];
+				cout << "ACTIVITY" << endl;
+				cout << "|- Starting Import" << endl;
+
+				for (int j = 0; j < activityjson.size(); j++) {
+					if (!arrayContains(activityjson, "activityName") ||
+						!arrayContains(activityjson, "activityLocation") ||
+						!arrayContains(activityjson, "activityYear") ||
+						!arrayContains(activityjson, "activityMonth") ||
+						!arrayContains(activityjson, "activityDay") ||
+						!arrayContains(activityjson, "activityHour") ||
+						!arrayContains(activityjson, "activityMinute")) {
+						cout << "|- Error with value(s) at index " << j << ". Skipping entry." << endl;
+						continue;
+					}
+					SqlResult result;
+					try {
+						if (activityjson[j].contains("activityDesc")) {
+							std::string preparedStatement = "INSERT INTO ACTIVITY (userID, activityName, activityDesc, activityYear, activityMonth, activityDay, activityHour, activityMinute, activityLocation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+							int activityYear = activityjson[j]["activityYear"];
+							int activityMonth = activityjson[j]["activityMonth"];
+							int activityDay = activityjson[j]["activityDay"];
+							int activityHour = activityjson[j]["activityHour"];
+							int activityMinute = activityjson[j]["activityMinute"];
+
+							result = sess.sql(preparedStatement)
+								.bind(userID)
+								.bind(returnString(activityjson[j]["activityName"]))
+								.bind(returnString(activityjson[j]["activityDesc"]))
+								.bind(std::to_string(activityYear))
+								.bind(std::to_string(activityMonth))
+								.bind(std::to_string(activityDay))
+								.bind(std::to_string(activityHour))
+								.bind(std::to_string(activityMinute))
+								.bind(returnString(activityjson[j]["activityLocation"]))
+								.execute();
+						}
+						else {
+							std::string preparedStatement = "INSERT INTO ACTIVITY (userID, activityName, activityYear, activityMonth, activityDay, activityHour, activityMinute, activityLocation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+							int activityYear = activityjson[j]["activityYear"];
+							int activityMonth = activityjson[j]["activityMonth"];
+							int activityDay = activityjson[j]["activityDay"];
+							int activityHour = activityjson[j]["activityHour"];
+							int activityMinute = activityjson[j]["activityMinute"];
+
+							result = sess.sql(preparedStatement)
+								.bind(userID)
+								.bind(returnString(activityjson[j]["activityName"]))
+								.bind(std::to_string(activityYear))
+								.bind(std::to_string(activityMonth))
+								.bind(std::to_string(activityDay))
+								.bind(std::to_string(activityHour))
+								.bind(std::to_string(activityMinute))
+								.bind(returnString(activityjson[j]["activityLocation"]))
+								.execute();
+						}
+						if (result.getAffectedItemsCount() < 1) {
+							throw;
+						}
+						internalCounter++;
+					}
+					catch (const mysqlx::Error& err)
+					{
+						cout << "|- Index " << j << " - ERROR: " << err << endl;
+					}
+					catch (...) {
+						cout << "|- An unknown error occured on entry with index " << j << ". Check when operation is completed." << endl;
+					}
+				}
+				cout << "|- Imported " << internalCounter << " of " << activityjson.size() << " values." << endl;
+			}
+			else if (importDataStruct[i]["type"] == "attendance") {
+				json attendancejson = importDataStruct[i]["values"];
+				cout << "ATTENDANCE" << endl;
+				cout << "|- Starting Import" << endl;
+
+				int totalSize = attendancejson.size();
+
+				for (int j = 0; j < attendancejson.size(); j++) {
+					if (!arrayContains(attendancejson, "activityName") ||
+						!arrayContains(attendancejson, "attendees")) {
+
+						cout << "|- Error with value(s) at index " << j << ". Skipping entry." << endl;
+						continue;
+					}
+
+					SqlResult result;
+					std::string preparedStatement = "INSERT INTO ATTENDANCE (userID,  activityID, memberID) VALUES (?, (SELECT activityID FROM ACTIVITY WHERE activityName=?), (SELECT memberID FROM MEMBER WHERE matrixNo=?))";
+					try {
+						for (int k = 0; k < attendancejson[j]["attendees"].size(); k++) {
+							totalSize += attendancejson[j]["attendees"].size();
+
+							std::string activityName = returnString(attendancejson[j]["activityName"]);
+							std::string attendeeMatrix = returnString(attendancejson[j]["attendees"][k]);
+
+							auto myStatement = sess.sql(preparedStatement)
+								.bind(userID)
+								.bind(activityName);
+
+							try {
+								result = myStatement.bind(attendeeMatrix).execute();
+								if (result.getAffectedItemsCount() < 1) {
+									throw;
+								}
+							}
+							catch (const mysqlx::Error& err)
+							{
+								cout << "|- Index " << j << ":" << k << " - ERROR: " << err << endl;
+							}
+							catch (...) {
+								cout << "|- An unknown error occured on entry with index " << j << ":" << k << ". Check when operation is completed." << endl;
+							}
+							internalCounter++;
+						}
+
+					}
+					catch (const mysqlx::Error& err)
+					{
+						cout << "|- Index " << j << " - ERROR: " << err << endl;
+					}
+					catch (...) {
+						cout << "|- An unknown error occured on entry with index " << j << ". Check when operation is completed." << endl;
+					}
+				}
+				cout << "|- Imported " << internalCounter << " of " << totalSize << " values." << endl;
+			}
+			else {
+				cout << "UNKNOWN COLUMN - Not Imported" << endl;
+			}
+		}
+		catch (const mysqlx::Error& err)
+		{
+			cout << "ERROR: " << err << endl;
+		}
+		catch (...) {
+			cout << "An unknown error occured." << endl;
+		}
+
+		std::chrono::steady_clock::time_point end0 = std::chrono::steady_clock::now();
+		cout << "|- Runtime: " << (std::chrono::duration_cast<std::chrono::microseconds>(end0 - begin0).count()) / 1000000.0 << " seconds. " << endl << endl;
+	}
+
+	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+	cout << endl;
+	cout << "Operation complete. Please check the logs above for any errors." << endl;
+	cout << "Total Runtime: " << (std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()) / 1000000.0 << " seconds. " << endl;
+	pause();
 }
 
-void exportImportMenu() {
+
+void exportImportMenu(int userID) {
 	unsigned short int selection = 0;
 
 	while (true) {
 		json menuEntries = {
 			"Export Entries as JSON",
-			"Import Entries"
+			"Import Entries from JSON"
 		};
 
 
@@ -377,7 +655,7 @@ void exportImportMenu() {
 				exportFunc();
 				break;
 			case 2:
-				importFunc();
+				importFunc(userID);
 				break;
 			case 10:
 				return;
