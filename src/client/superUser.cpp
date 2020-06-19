@@ -18,8 +18,8 @@ void superUser() {
 
 		heading("Super User Mode. \nAny action done here will directly affect database. Use carefully.");
 		printLine();
-		cout << "Are you sure you want to execute the following statement? " << endl;
-		cout << "> " << statement << endl;
+		cout << "Are you sure you want to execute the following statement? " << endl << endl;
+		cout << "> " << statement << endl << endl;
 
 		if (decider()) {
 			try {
@@ -35,8 +35,29 @@ void superUser() {
 				} catch (...) {}
 
 				try {
+					myResult.getWarningsCount();
+					cout << left << std::setw(30) << "Warnings" << ": " << myResult.getWarningsCount() << endl;
+				}
+				catch (...) {}
+
+				try {
 					myResult.count();
-					cout << left << std::setw(30) << "Rows returned" << ": " << myResult.count() << endl;
+					cout << left << std::setw(30) << "Rows returned" << ": " << myResult.count() << endl << endl << endl;
+
+					if (myResult.count() > 0) {
+						for (int i = 0; i < myResult.getColumnCount(); i++) {
+							cout << myResult.getColumn(i) << "\t";
+						}
+						cout << endl;
+						printLine();
+
+						for (Row row : myResult.fetchAll()) {
+							for (int i = 0; i < row.colCount(); i++) {
+								cout << row[i] << "\t";
+							}
+							cout << endl;
+						}
+					}
 				} catch (...){}
 
 			}
