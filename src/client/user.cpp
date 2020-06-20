@@ -156,9 +156,9 @@ void userSearchEntry() {
 	std::vector<std::string> criterias;
 
 	do {
-		heading("Searching Member Entries.");
-		printLine();
 		if (counter > 0) {
+			heading("USER > Search > Criteria Generation > OR/AND Selection");
+			printLine();
 			cout << "\nCurrent " << criteriaStringUser << endl;
 			cout << "\nWould you like an \'OR\' join towards the previous criteria? Default: \'AND\' join" << endl;
 			if (decider()) {
@@ -171,7 +171,7 @@ void userSearchEntry() {
 			}
 		}
 
-		heading("Searching Member Entries.");
+		heading("USER > Search > Criteria Generation > Column Selection");
 		printLine();
 		menuGen(userTempDataStore, "colDesc");
 
@@ -200,7 +200,7 @@ void userSearchEntry() {
 		}
 
 		// Search criteria input.
-		heading("USER: Search Criteria Creation");
+		heading("USER > Search > Criteria Generation > Column Selection > Search Statement Generation");
 		printLine();
 		if (counter > 0) {
 			cout << "\nCurrent " << criteriaStringUser << endl << endl;
@@ -233,7 +233,7 @@ void userSearchEntry() {
 	int selection = 0;
 	// Make and validate selection
 	while (true) {
-		heading("Search Result");
+		heading("MEMBER > Search > Criteria Generation > Ordering Selection");
 		printLine();
 
 		cout << "How would you like to order your results by?" << endl;
@@ -249,7 +249,7 @@ void userSearchEntry() {
 
 	}
 
-	heading("Search Result");
+	heading("MEMBER > Search > Result");
 	printLine();
 	cout << "Search statement " << criteriaStringUser << endl;
 
@@ -319,7 +319,7 @@ void userAddEntry() {
 	std::string matrixNo;
 	// Getting Matrix No
 	while (true) {
-		heading("User Creation");
+		heading("USER > Add Entry");
 		printLine();
 		cout << "Please input the following data to facilitate for user creation.\n\nAn asterisk (*) indicates entries with mandatory input." << endl << endl;
 		cout << left << std::setw(30) << "Matrix No.*" << "\t: ";
@@ -445,7 +445,7 @@ void userListEntries() {
 	int selection = 0;
 	// Make and validate selection
 	while (true) {
-		heading("Listing User entries.");
+		heading("USER > Listing > Ordering");
 		printLine();
 
 		cout << "How would you like to order your results by?" << endl;
@@ -462,7 +462,7 @@ void userListEntries() {
 
 	}
 
-	heading("Listing User entries.");
+	heading("USER > Listing > Results");
 	printLine();
 
 	// Print table headings, and copy into vector space for outputSizing
@@ -522,7 +522,7 @@ void userListEntries() {
 void userUpdateEntry() {
 	// To ask if the user wants to search for the relavant data
 	while (true) {
-		heading("Update Member Entries.");
+		heading("USER > Update");
 		printLine();
 		cout << "Updating will be based on matrix no. Do you want to search user data?" << endl;
 
@@ -536,8 +536,7 @@ void userUpdateEntry() {
 	std::string matrixNo;
 	try {
 		while (true) {
-			system("cls");
-			heading("Update Member Entries.");
+			heading("USER > Update > Input Matrix No.");
 			printLine();
 			cout << "Please input member matrix no to update: ";
 			getline(cin, matrixNo);
@@ -552,7 +551,7 @@ void userUpdateEntry() {
 
 			// If there are no relavant rows, prompt the user to re-input
 			if (myRows.count() > 0) {
-				heading("Update Confirmation");
+				heading("USER > Update > User Confirmation");
 				printLine();
 				cout << "Are you sure you want to update the member with the following entry?" << endl;
 				for (Row row : myRows.fetchAll()) {
@@ -593,7 +592,7 @@ void userUpdateEntry() {
 	std::string password = "";
 	std::string salt = sha256(random_string());
 	while (true) {
-		heading("Updating user entry");
+		heading("USER > Update Password");
 		printLine();
 		cout << "Please enter new password: ";
 		getline(cin, password);
@@ -613,7 +612,7 @@ void userUpdateEntry() {
 	preparedStatement2 += " WHERE memberID=(SELECT memberID FROM MEMBER WHERE matrixNo=?)";
 
 	// Show current changes
-	heading("Updating user entry");
+	heading("USER > Update Password > Confirmation");
 	printLine();
 	cout << "Are you sure you want to update password?" << endl;
 
@@ -652,7 +651,7 @@ void userDeleteEntry() {
 
 	// To ask if the user wants to search for the relavant data
 	while (true) {
-		heading("Delete Member Entries.");
+		heading("USER > Delete Entry");
 		printLine();
 		cout << "Deleting will be based on matrix no. Do you want to search user data?" << endl;
 
@@ -666,8 +665,7 @@ void userDeleteEntry() {
 	std::string matrixNo;
 	try {
 		while (true) {
-			system("cls");
-			heading("Delete Member Entries.");
+			heading("USER > Delete Entry > Data Collection");
 			printLine();
 			cout << "Please input member matrix no to delete: ";
 			getline(cin, matrixNo);
@@ -743,7 +741,7 @@ void userMenu() {
 	unsigned short int selection = 0;
 
 MenuStart:
-	json menuEntries = { "Add User", "List Users", "Update User", "Delete User", "Search User" };
+	json menuEntries = { "Add User", "List Users", "Update User Password", "Delete User", "Search User" };
 
 	clearScreen();
 

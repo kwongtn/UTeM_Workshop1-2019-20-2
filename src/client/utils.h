@@ -6,6 +6,7 @@
 #include <vector>
 #include <sstream>
 #include <windows.h>
+#include <cstdlib>
 #include <mysqlx/xdevapi.h>
 #include "../libs/json.hpp"
 
@@ -218,4 +219,14 @@ inline std::string random_string(size_t length = 100) {
 	std::string str(length, 0);
 	std::generate_n(str.begin(), length, randchar);
 	return str;
+}
+
+inline std::string return_current_time_and_date()
+{
+	auto now = std::chrono::system_clock::now();
+	auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+	std::stringstream ss;
+	ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %X");
+	return ss.str();
 }

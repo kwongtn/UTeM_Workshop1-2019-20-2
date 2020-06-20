@@ -29,20 +29,24 @@ void additionalInformation() {
 
 	// Database test
 	try {
+		cout << endl;
+		cout << "Testing database server connection." << "\r";
 
 		if (testSession()) {
-			cout << "\nDatabase Server Connection success." << endl;
+			cout << "> Database Server Connection success." << endl;
 		}
 		else {
-			cout << "\nError in database server connection." << endl;
+			cout << "> Error in database server connection." << endl;
 		}
 
+		cout << endl;
+		cout << "Testing database connection." << "\r";
 		// Access schema
 		if (testDb(SCHEMA)) {
-			cout << "\nDatabase Connection success." << endl;
+			cout << "> Database Connection success." << endl;
 		}
 		else {
-			cout << "\nError in database connection. Database probably having error." << endl;
+			cout << "> Error in database connection. Database probably having error." << endl;
 		}
 
 	}

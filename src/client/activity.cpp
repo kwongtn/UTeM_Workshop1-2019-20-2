@@ -227,7 +227,7 @@ void activityListEntries() {
 	int selection = 0;
 	// Make and validate selection
 	while (true) {
-		heading("Listing Activity entries.");
+		heading("ACTIVITY > Listing > Ordering");
 		printLine();
 
 		cout << "How would you like to order your results by?" << endl;
@@ -244,7 +244,7 @@ void activityListEntries() {
 
 	}
 
-	heading("Listing Activity entries.");
+	heading("ACTIVITY > Listing > Results");
 	printLine();
 
 	// Print table headings, and copy into vector space for outputSizing
@@ -302,7 +302,7 @@ void activityListEntries() {
 }
 
 void activityAddEntry(int userID) {
-	heading("Activity Creation");
+	heading("ACTIVITY > Add Entry");
 	printLine();
 	cout << "Please input the following data to facilitate for activity creation.\n* Indicates that entries with that value must be unique." << endl << endl;
 
@@ -331,7 +331,7 @@ void activityAddEntry(int userID) {
 					else {
 						temp = std::to_string(inputData);
 					}
-				
+
 				}
 				else {
 					getline(cin, temp);
@@ -362,7 +362,7 @@ void activityAddEntry(int userID) {
 
 	std::string preparedStatement = "INSERT INTO " + thisTableName + " (userID, ";
 	preparedStatement += columnNamesGen(activityTempDataStore, "getThis", "colName");
-	preparedStatement += ") VALUES (" + std::to_string(userID) +  ", ?";
+	preparedStatement += ") VALUES (" + std::to_string(userID) + ", ?";
 
 	for (int i = 1; i < activityTempDataStore.size(); i++) {
 		preparedStatement += ", ?";
@@ -373,7 +373,7 @@ void activityAddEntry(int userID) {
 	while (recover) {
 		try {
 			Session sess = getSessionDb();
-			
+
 			auto mySess = sess.sql(preparedStatement);
 
 			for (int i = 0; i < activityTempDataStore.size(); i++) {
@@ -454,9 +454,9 @@ void activitySearchEntry() {
 	std::vector<std::string> criterias;
 
 	do {
-		heading("Searching Activity Entries.");
-		printLine();
 		if (counter > 0) {
+			heading("ACTIVITY > Search > Criteria Generation > OR/AND Selection");
+			printLine();
 			cout << "\nCurrent " << criteriaStringUser << endl;
 			cout << "\nWould you like an \'OR\' join towards the previous criteria? Default: \'AND\' join" << endl;
 			if (decider()) {
@@ -469,7 +469,7 @@ void activitySearchEntry() {
 			}
 		}
 
-		heading("Searching Activity Entries.");
+		heading("ACTIVITY > Search > Criteria Generation > Column Selection");
 		printLine();
 		menuGen(activityTempDataStore, "colDesc");
 
@@ -498,7 +498,7 @@ void activitySearchEntry() {
 		}
 
 		// Search criteria input.
-		heading("ACTIVITY: Search Criteria Creation");
+		heading("ACTIVITY > Search > Criteria Generation > Column Selection > Search Statement Generation");
 		printLine();
 		if (counter > 0) {
 			cout << "\nCurrent " << criteriaStringUser << endl << endl;
@@ -531,7 +531,7 @@ void activitySearchEntry() {
 	int selection = 0;
 	// Make and validate selection
 	while (true) {
-		heading("Search Result");
+		heading("ACTIVITY > Search > Criteria Generation > Ordering Selection");
 		printLine();
 
 		cout << "How would you like to order your results by?" << endl;
@@ -547,7 +547,7 @@ void activitySearchEntry() {
 
 	}
 
-	heading("ACTIVITY: Search Result");
+	heading("ACTIVITY > Search > Result");
 	printLine();
 	cout << "Search statement " << criteriaStringUser << endl;
 
@@ -622,9 +622,9 @@ void activityUpdateEntry(int userID) {
 
 	// To ask if the user wants to search for the relavant data
 	while (true) {
-		heading("Update Activity Entries.");
+		heading("ACTIVITY > Update");
 		printLine();
-		cout << "Updating will be based on activity ID. Do you want to search activity data?" << endl;
+		cout << "Updating will be based on activity ID. Do you want to search for activity ID?" << endl;
 
 		if (!decider()) {
 			break;
@@ -637,7 +637,7 @@ void activityUpdateEntry(int userID) {
 	std::string activityName;
 	try {
 		while (true) {
-			heading("Update Activity Entries.");
+			heading("ACTIVITY > Update > Input Activity ID");
 			printLine();
 			cout << "Please input activity ID to update: ";
 			getline(cin, activityID);
@@ -652,7 +652,7 @@ void activityUpdateEntry(int userID) {
 
 			// If there are no relavant rows, prompt the user to re-input
 			if (myRows.count() > 0) {
-				heading("Update Confirmation");
+				heading("ACTIVITY > Update > Activity ID Confirmation");
 				printLine();
 				cout << "Are you sure you want to update the activity with the following entry?" << endl;
 				for (Row row : myRows.fetchAll()) {
@@ -727,7 +727,9 @@ void activityUpdateEntry(int userID) {
 
 
 	while (true) {
-		heading("Updating activity entry - " + activityName);
+		heading("ACTIVITY > Update > Field Selection");
+		printLine();
+		cout << "Updating activity \"" << activityName << "\"" << endl;
 		printLine();
 
 		while (true) {
@@ -778,10 +780,9 @@ void activityUpdateEntry(int userID) {
 	}
 	preparedStatement2 += ", lastUpdatedUserID=? WHERE activityID=?";
 
-	cout << preparedStatement2 << endl;
-
 	// Show current changes
-	clearScreen();
+	heading("ACTIVITY > Update > Update Confirmation");
+	printLine();
 	cout << "Current changes for activity \"" << activityName << "\" (ID " << activityID << ") are :" << endl;
 	for (int i = 0; i < activityTempDataStore2.size(); i++) {
 		cout << left << std::setw(20) << returnString(activityTempDataStore2[i]["colDesc"]);
@@ -822,9 +823,9 @@ void activityDeleteEntry() {
 
 	// To ask if the user wants to search for the relavant data
 	while (true) {
-		heading("Delete Activity Entries.");
+		heading("ACTIVITY > Delete Entry");
 		printLine();
-		cout << "Deleting will be based on activity ID. Do you want to search activity data?" << endl;
+		cout << "Deleting will be based on activity ID. Do you want to search activity data before deletion?" << endl;
 
 		if (!decider()) {
 			break;
@@ -836,8 +837,7 @@ void activityDeleteEntry() {
 	std::string activityID;
 	try {
 		while (true) {
-			system("cls");
-			heading("Delete Activity Entries.");
+			heading("ACTIVITY > Delete Entry > Data Collection");
 			printLine();
 			cout << "Please input activity ID to delete: ";
 			getline(cin, activityID);
@@ -854,6 +854,8 @@ void activityDeleteEntry() {
 
 			// If there are no relavant rows, prompt the user to re-input
 			if (myRows.count() > 0) {
+				heading("ACTIVITY > Delete Entry > Confirmation");
+				printLine();
 				cout << "Are you sure you want to delete the following entry?" << endl;
 				for (Row row : myRows.fetchAll()) {
 					for (int i = 0; i < row.colCount(); i++) {
@@ -934,7 +936,7 @@ void activityListDetail() {
 
 	// To ask if the user wants to search for the relavant data
 	while (true) {
-		heading("Show Detailed Activity Entries");
+		heading("ACTIVITY > Show Detail");
 		printLine();
 		cout << "Detailed information will be shown based on activity ID. Do you want to search activity data?" << endl;
 
@@ -948,8 +950,7 @@ void activityListDetail() {
 	std::string activityID;
 	try {
 		while (true) {
-			system("cls");
-			heading("Show Detailed Activity Entries");
+			heading("ACTIVITY > Show Detail > Input Activity ID");
 			printLine();
 			cout << "Please input activity ID to show: ";
 			activityID = std::to_string(inputInt(false, true));
@@ -960,6 +961,7 @@ void activityListDetail() {
 
 			auto myRows = sess.sql(preparedStatement1).bind(activityID).execute();
 
+			heading("ACTIVITY > Show Detail > Results");
 			printLine();
 
 			// If there are no relavant rows, prompt the user to re-input

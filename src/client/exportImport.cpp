@@ -1,4 +1,4 @@
-﻿#include "utils.h"
+#include "utils.h"
 #include "sha256.h"
 #include <fstream>
 #include <chrono>
@@ -64,7 +64,7 @@ void exportFunc() {
 	while (true) {
 		// Output selection menu
 		while (true) {
-			heading("EXPORT: Selecting tables to export");
+			heading("EXPORT > Table Selection");
 			printLine();
 			cout << "Exporting to \"" << filePath << "\"" << endl;
 			cout << "Output json will be with respect to sequence." << endl << endl;
@@ -107,27 +107,28 @@ void exportFunc() {
 		}
 	}
 
-	heading("Export operation");
+	heading("EXPORT > Table Selection > Execution");
 	printLine();
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-	for (int i = 0; i < selected.size(); i++) {
+	for (int i = 0; i < selected.size() - 1; i++) {
 		std::chrono::steady_clock::time_point begin0 = std::chrono::steady_clock::now();
 		try {
 			Session sess = getSessionDb();
 			if (selectionMenu[selected[i]]["tableName"] == "Member") {
 				cout << "\nMEMBER" << endl;
+				cout << "|- Snapshot time: " << return_current_time_and_date() << endl;
 				cout << "|- Starting export from table \'Member\'" << endl;
 
 				try {
 					cout << "|- Querying database..." << endl;
 					auto myRows = sess.sql("SELECT engName, matrixNo, hostel FROM MEMBER").execute();
 
-					cout << "|- Assigning values..." << endl;
 					exportDataStruct[jsonSizer]["type"] = "member";
 
 					int rowCount = 0;
 					int totalRowCount = myRows.count();
 					for (Row row : myRows.fetchAll()) {
+						cout << "\r|- Assigning value " << rowCount + 1 << " of " << totalRowCount;
 						std::stringstream ss1, ss2, ss3;
 
 						row.get(0).print(ss1);
@@ -144,7 +145,7 @@ void exportFunc() {
 
 						rowCount++;
 					}
-
+					cout << endl;
 					cout << "|- Exported " << rowCount << " of " << totalRowCount << " results from table \'Member\'." << endl;
 
 					jsonSizer++;
@@ -159,18 +160,19 @@ void exportFunc() {
 			}
 			else if (selectionMenu[selected[i]]["tableName"] == "User") {
 				cout << "\nUSER" << endl;
+				cout << "|- Snapshot time: " << return_current_time_and_date() << endl;
 				cout << "|- Starting export from table \'User\'" << endl;
 
 				try {
 					cout << "|- Querying database..." << endl;
 					auto myRows = sess.sql("SELECT matrixNo, pw FROM USER a INNER JOIN MEMBER b ON a.memberID=b.memberID").execute();
 
-					cout << "|- Assigning values..." << endl;
 					exportDataStruct[jsonSizer]["type"] = "user";
 
 					int rowCount = 0;
 					int totalRowCount = myRows.count();
 					for (Row row : myRows.fetchAll()) {
+						cout << "\r|- Assigning value " << rowCount + 1 << " of " << totalRowCount;
 						std::stringstream ss1, ss2;
 
 						row.get(0).print(ss1);
@@ -181,7 +183,7 @@ void exportFunc() {
 
 						rowCount++;
 					}
-
+					cout << endl;
 					cout << "|- Exported " << rowCount << " of " << totalRowCount << " results from table \'User\'." << endl;
 
 					jsonSizer++;
@@ -196,6 +198,7 @@ void exportFunc() {
 			}
 			else if (selectionMenu[selected[i]]["tableName"] == "Activity") {
 				cout << "\nACTIVITY" << endl;
+				cout << "|- Snapshot time: " << return_current_time_and_date() << endl;
 				cout << "|- Starting export from table \'Activity\'" << endl;
 
 				try {
@@ -206,8 +209,8 @@ void exportFunc() {
 
 					int rowCount = 0;
 					int totalRowCount = myRows.count();
-					cout << "|- Assigning values...";
 					for (Row row : myRows.fetchAll()) {
+						cout << "\r|- Assigning value " << rowCount + 1 << " of " << totalRowCount;
 						std::stringstream ss[10];
 
 						for (int i = 0; i < 10; i++) {
@@ -246,6 +249,7 @@ void exportFunc() {
 			}
 			else if (selectionMenu[selected[i]]["tableName"] == "Attendance") {
 				cout << "\nATTENDANCE" << endl;
+				cout << "|- Snapshot time: " << return_current_time_and_date() << endl;
 				cout << "|- Starting export from table \'Attendance\'" << endl;
 
 				try {
@@ -256,9 +260,10 @@ void exportFunc() {
 
 					int rowCount = 0;
 					int totalRowCount = 0;
-					cout << "|- Assigning values - Level 1..." << endl;
+					int exportedCounter = 0;
+					cout << "|- Assigning values - Level 1...";
 					for (Row row : myRows.fetchAll()) {
-						cout << "|- Attendance for activity #" << rowCount + 1 << endl;
+						cout << "\n|- Attendance for activity #" << rowCount + 1 << endl;
 						std::stringstream ss1, ss2;
 						row.get(0).print(ss1);
 
@@ -271,28 +276,33 @@ void exportFunc() {
 						auto myRows2 = sess.sql("SELECT activityName FROM ATTENDANCE a INNER JOIN ACTIVITY b ON a.activityID=b.activityID WHERE a.activityID=? GROUP BY a.activityID").bind(activityID).execute();
 						myRows2.fetchOne().get(0).print(ss2);
 						std::string activityName = ss2.str();
+						totalRowCount++;
 						exportDataStruct[jsonSizer]["values"][rowCount]["activityName"] = activityName;
+						exportedCounter++;
 
-						// Get activity name based on activity ID
+						// Get attendance based on activity ID
 						cout << "|- |- Querying database - Level 2-2..." << endl;
 						auto myRows3 = sess.sql("SELECT matrixNo FROM ATTENDANCE a INNER JOIN MEMBER b ON a.memberID=b.memberID WHERE activityID=? GROUP BY b.matrixNo").bind(activityID).execute();
 
 						int counter = 0;
+						totalRowCount += myRows3.count();
+						int currentRows = myRows3.count();
 						for (Row row3 : myRows3.fetchAll()) {
 							std::stringstream ss3;
 							row3.get(0).print(ss3);
 							std::string matrixNo = ss3.str();
 							exportDataStruct[jsonSizer]["values"][rowCount]["attendees"][counter] = matrixNo;
-
+							cout << "\r|- |- Assigning value " << counter + 1 << " of " << currentRows;
+							exportedCounter++;
 							counter++;
-							totalRowCount++;
 						}
 						rowCount++;
 
 
 					}
 
-					cout << "|- Exported " << totalRowCount << " results from table \'Attendance\'." << endl;
+					cout << endl;
+					cout << "|- Exported " << exportedCounter << " of " << totalRowCount << " results from table \'Attendance\'." << endl;
 
 					jsonSizer++;
 				}
@@ -369,7 +379,7 @@ void importFunc(int userID) {
 		return;
 	}
 
-	heading("IMPORT from JSON - Data preview");
+	heading("IMPORT from JSON > Data Preview");
 	printLine();
 	cout << importDataStruct.dump(2) << endl;
 	cout << endl << "Do you want to import the data shown above?" << endl;
@@ -377,14 +387,14 @@ void importFunc(int userID) {
 		return;
 	}
 
-	heading("IMPORT from JSON - Warning");
+	heading("IMPORT from JSON > Data Preview > Warning");
 	printLine();
 	cout << endl << "Data import will be done on a \"best effort\" basis. Unrecognized values will be ignored. You are responsible for diagnosis should data import fails. Continue?" << endl;
 	if (!decider()) {
 		return;
 	}
 
-	heading("IMPORT from JSON - Execution");
+	heading("IMPORT from JSON > Data Preview > Warning > Execution");
 	printLine();
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 	for (int i = 0; i < importDataStruct.size(); i++) {
@@ -396,14 +406,18 @@ void importFunc(int userID) {
 				json memberjson = importDataStruct[i]["values"];
 				cout << "MEMBER" << endl;
 				cout << "|- Starting Import" << endl;
+
+				if (memberjson.size() == 0) continue;
+
 				for (int j = 0; j < memberjson.size(); j++) {
 					if (!arrayContains(memberjson, "engName") || !arrayContains(memberjson, "matrixNo")) {
 						cout << "|- Error with value(s) at index " << j << ". Skipping entry." << endl;
 						continue;
 					}
 					SqlResult result;
+					cout << "|- Importing value " << j << "\r";
 					try {
-						if (memberjson.contains("hostel")) {
+						if (memberjson[j].contains("hostel")) {
 							std::string preparedStatement = "INSERT INTO MEMBER (engName, matrixNo, hostel) VALUES (?, ?, ?)";
 
 							result = sess.sql(preparedStatement).bind(returnString(memberjson[j]["engName"])).bind(returnString(memberjson[j]["matrixNo"])).bind(returnString(memberjson[j]["hostel"])).execute();
@@ -430,6 +444,9 @@ void importFunc(int userID) {
 			}
 			else if (importDataStruct[i]["type"] == "user") {
 				json userjson = importDataStruct[i]["values"];
+
+				if (userjson.size() == 0) continue;
+
 				cout << "USER" << endl;
 				cout << "|- Starting Import" << endl;
 				for (int j = 0; j < userjson.size(); j++) {
@@ -438,6 +455,7 @@ void importFunc(int userID) {
 						continue;
 					}
 					SqlResult result;
+					cout << "|- Importing value " << j << "\r";
 					try {
 						std::string salt = sha256(random_string());
 						std::string preparedStatement = "INSERT INTO USER (salt, pw, memberID) VALUES (?, ?, (SELECT memberID FROM MEMBER WHERE matrixNo=?))";
@@ -461,6 +479,9 @@ void importFunc(int userID) {
 			}
 			else if (importDataStruct[i]["type"] == "activity") {
 				json activityjson = importDataStruct[i]["values"];
+
+				if (activityjson.size() == 0) continue;
+
 				cout << "ACTIVITY" << endl;
 				cout << "|- Starting Import" << endl;
 
@@ -476,6 +497,7 @@ void importFunc(int userID) {
 						continue;
 					}
 					SqlResult result;
+					cout << "|- Importing value " << j << "\r";
 					try {
 						if (activityjson[j].contains("activityDesc")) {
 							std::string preparedStatement = "INSERT INTO ACTIVITY (userID, activityName, activityDesc, activityYear, activityMonth, activityDay, activityHour, activityMinute, activityLocation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -535,6 +557,9 @@ void importFunc(int userID) {
 			}
 			else if (importDataStruct[i]["type"] == "attendance") {
 				json attendancejson = importDataStruct[i]["values"];
+
+				if (attendancejson.size() == 0) continue;
+
 				cout << "ATTENDANCE" << endl;
 				cout << "|- Starting Import" << endl;
 
@@ -549,6 +574,7 @@ void importFunc(int userID) {
 					}
 
 					SqlResult result;
+					cout << "|- Importing value " << j << "\r";
 					std::string preparedStatement = "INSERT INTO ATTENDANCE (userID,  activityID, memberID) VALUES (?, (SELECT activityID FROM ACTIVITY WHERE activityName=?), (SELECT memberID FROM MEMBER WHERE matrixNo=?))";
 					try {
 						for (int k = 0; k < attendancejson[j]["attendees"].size(); k++) {
@@ -611,14 +637,13 @@ void importFunc(int userID) {
 	pause();
 }
 
-
 void exportImportMenu(int userID) {
 	unsigned short int selection = 0;
 
 	while (true) {
 		json menuEntries = {
 			"Export Entries as JSON",
-			"Import Entries from JSON"
+			"Import Entries from JSON",
 		};
 
 

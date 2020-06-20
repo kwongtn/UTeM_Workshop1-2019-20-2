@@ -96,7 +96,7 @@ json analysisTempDataStore3{};
 
 void countHostel() {
 	// Show menu top
-	heading("ANALYSIS: Member Hostel");
+	heading("ANALYSIS > Group Member by Hostel");
 	printLine();
 
 	cout << "No. of Students based on hostel." << endl << endl;
@@ -143,7 +143,7 @@ void countHostel() {
 
 void countMemberAttendance() {
 	// Show menu top
-	heading("ANALYSIS: Member Attendance");
+	heading("ANALYSIS > Filtering Intent");
 	printLine();
 
 	cout << "Do you want to filter by attendance count?" << endl;
@@ -156,7 +156,7 @@ void countMemberAttendance() {
 		int selection = 1000;
 
 		while (true) {
-			heading("ANALYSIS: Member Attendance - Criteration");
+			heading("ANALYSIS > Filtering Intent > Criteration Selection");
 			printLine();
 
 			if (counter > 0) {
@@ -208,7 +208,7 @@ void countMemberAttendance() {
 				continue;
 			}
 
-			heading("ANALYSIS: Member Attendance - Criteration");
+			heading("ANALYSIS > Filtering Intent > Criteration Crafting");
 			printLine();
 
 			cout << "Please enter attendance count to be filtered by: \n";
@@ -228,7 +228,7 @@ void countMemberAttendance() {
 
 	}
 
-	heading("ANALYSIS: Member Attendance");
+	heading("ANALYSIS > Filtering Intent > Criteration > Result");
 	printLine();
 
 	cout << "Member's Attendance" << endl << endl;
@@ -296,7 +296,7 @@ void countMemberAttendance() {
 
 void countUserInput() {
 	// Show menu top
-	heading("ANALYSIS: User Input");
+	heading("ANALYSIS > Count Inputs by User > Criteration");
 	printLine();
 
 	cout << "Do you want to group with respect to activity?" << endl;
@@ -313,7 +313,7 @@ void countUserInput() {
 		preparedStatement += ", activityName";
 	}
 
-	heading("ANALYSIS: User Input");
+	heading("ANALYSIS > Count Inputs by User > Result");
 	printLine();
 	try {
 		auto db = getSessionDb();
@@ -370,7 +370,7 @@ void countUserInput() {
 
 void countActivityAttendance() {
 	// Show menu top
-	heading("ANALYSIS: Activity Attendance");
+	heading("ANALYSIS > Activity Attendance");
 	printLine();
 
 	cout << "Do you want to filter with respect to datetime?" << endl;
@@ -391,7 +391,8 @@ void countActivityAttendance() {
 		}
 	}
 
-
+	heading("ANALYSIS > Activity Attendance > Results");
+	printLine();
 	cout << "Activity's Attendance" << endl << endl;
 
 	if (filterBasedOnDateTime) {
@@ -419,7 +420,6 @@ void countActivityAttendance() {
 			myResult = db.sql(preparedStatement).execute();
 		}
 
-		//.execute();
 
 		std::vector<int> setwidth = { 15, 30, 20, 30, 20, 50 };
 
@@ -487,11 +487,18 @@ void countAttendanceCustomGrouping() {
 	while (true) {
 		// Output selection menu
 		while (true) {
-			heading("ATTENDANCE: Selecting Grouping");
+			heading("ATTENDANCE > Selecting Grouping");
 			printLine();
 			cout << "Output table will be with respect to sequence." << endl << endl;
 
 			menuGen(analysisTempDataStore, "colDesc", "notSelected");
+
+			cout << "Currently selected: " << endl;
+			cout << analysisTempDataStore[selected[0]]["colDesc"];
+			for (int i = 1; i < selected.size(); i++) {
+				cout << ", " << returnString(analysisTempDataStore[selected[i]]["colDesc"]);
+			}
+
 			selection = inputInt();
 
 			// Check if selection was previously selected
@@ -548,7 +555,7 @@ void countAttendanceCustomGrouping() {
 	preparedStatement += ") a";
 
 	// Create headers
-	heading("ATTENDANCE: Selecting Grouping");
+	heading("ATTENDANCE > Selecting Grouping > Results");
 	printLine();
 	int lineLength = 10;
 	cout << "Aggregating based on: ";

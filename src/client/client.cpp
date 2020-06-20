@@ -24,7 +24,8 @@ int userID = 1;
 std::string userName = "- You are now in no-login mode";
 
 bool login() {
-	system("cls");
+	heading("Login Page");
+	printLine();
 	std::string login = "";
 	std::string password = "";
 	cout << "Please enter your login credentials: " << endl << endl;
@@ -35,6 +36,7 @@ bool login() {
 	cout << "Password\t: ";
 	getline(cin, password);
 
+	cout << endl << "Verifying your login credentials, please wait.";
 	// Get salt
 	std::string salt = "";
 	try {
@@ -43,7 +45,7 @@ bool login() {
 		auto myRows = sess.sql("SELECT salt FROM USER WHERE memberID=(SELECT memberID FROM MEMBER WHERE matrixNo=?)").bind(login).execute();
 
 		if (myRows.count() != 1) {
-			cout << "Login error. Please try again." << endl;
+			cout << "\n\nLogin error. Please try again." << endl;
 			pause();
 			return false;
 		}
@@ -61,10 +63,14 @@ bool login() {
 	}
 	catch (const mysqlx::Error& err)
 	{
-		cout << "ERROR: " << err << endl;
+		cout << "\rERROR: " << err << endl;
+		pause();
+		return false;
 	}
 	catch (...) {
-		cout << "An unknown error occured." << endl;
+		cout << "\rAn unknown error occured." << endl;
+		pause();
+		return false;
 	}
 
 	password = sha256(salt + password);
@@ -72,7 +78,6 @@ bool login() {
 	std::string preparedStatement = "SELECT a.engName, b.userID FROM MEMBER a INNER JOIN USER b ON a.memberID=b.memberID WHERE ";
 	preparedStatement += "a.matrixNo=? AND b.pw=?";
 
-	cout << "Verifying your login credentials, please wait." << endl;
 	try {
 
 		Session sess = getSessionDb();
@@ -80,7 +85,7 @@ bool login() {
 		auto myRows = sess.sql(preparedStatement).bind(login, password).execute();
 
 		if (myRows.count() != 1) {
-			cout << "Login error. Please try again." << endl;
+			cout << "\n\nLogin error. Please try again." << endl;
 			system("pause");
 			return false;
 		}
@@ -96,8 +101,7 @@ bool login() {
 			myRow.get(1).print(ss2);
 			userID = std::stoi(ss2.str());
 
-			cout << endl;
-			cout << "Welcome " << userName << ". You are now logged in." << endl;
+			cout << "\rWelcome " << userName << ". You are now logged in." << endl;
 
 			pause();
 
@@ -108,9 +112,13 @@ bool login() {
 	catch (const mysqlx::Error& err)
 	{
 		cout << "ERROR: " << err << endl;
+		pause();
+		return false;
 	}
 	catch (...) {
 		cout << "An unknown error occured." << endl;
+		pause();
+		return false;
 	}
 	pause();
 	return false;
@@ -126,9 +134,11 @@ int main() {
 	*/
 
 	while (true) {
-		cout << "Running startup diagnostic test" << endl;
+		heading("Startup diagnostics");
+		printLine();
+		cout << "Running startup diagnostic test...\nIf you see this message for an extended time there may be an issue." << endl;
 		if (!testSession()) {
-			cout << "There may be a connection problem. Open diagnostics?" << endl;
+			cout << "\nThere may be a connection problem. Open diagnostics?" << endl;
 			if (decider()) {
 				additionalInformation();
 			}
@@ -151,14 +161,11 @@ int main() {
 	unsigned int selection = 0;
 
 	while (true) {
-		json menuEntries = { "Member", "Activity", "Attendance", "User\n", "Analysis\n" ,"Additional Information", "Data Administration" };
+		json menuEntries = { "Member", "Activity", "Attendance", "User\n", "Analysis\n" ,"Diagnostics Information", "Data Administration" };
 
-		clearScreen();
-
-		heading();
-		cout << "Welcome " << userName << ". Please select your scope of action." << endl;
-
+		heading("Welcome " + userName + ". Please select your scope of action.");
 		printLine();
+
 
 
 		for (int i = 0; i < menuEntries.size(); i++) {
@@ -171,47 +178,46 @@ int main() {
 		try {
 			selection = inputInt();
 			if (selection > menuEntries.size() || selection < 0) {
-				if (!(selection == 10 || selection == 1783174)) {
+				if (!(selection == 10 || selection == SUPERUSER_PASS_INT || selection == -1)) {
 					throw "Error";
 				}
 			}
 
-			switch (selection)
-			{
-			case 1:
+			if (selection == 1) {
 				memberMenu();
-				break;
-			case 2:
+			}
+			else if (selection == 2) {
 				activityMenu(userID);
-				break;
-			case 3:
+			}
+			else if (selection == 3) {
 				attendanceMenu(userID);
-				break;
-			case 4:
+			}
+			else if (selection == 4) {
 				userMenu();
-				break;
-			case 5:
+			}
+			else if (selection == 5) {
 				analysisMenu();
-				break;
-			case 6:
+			}
+			else if (selection == 6) {
 				additionalInformation();
-				break;
-			case 7:
+			}
+			else if (selection == 7) {
 				exportImportMenu(userID);
-				break;
-			case 1783174:
+			}
+			else if (selection == SUPERUSER_PASS_INT) {
 				superUser();
-				break;
-			case 10:
-				cout << "Thank you for using attendance management system by KwongTN." << endl;
+			}
+			else if (selection == 10 || selection == -1) {
+cout << "Thank you for using attendance management system by KwongTN." << endl;
 				pause();
 				exit(0);
-				break;
-			default:
+			}
+			else {
 				cout << "Default pathway";
 				throw "Invalid Selection";
-				break;
 			}
+
+
 		}
 		catch (...) {
 			cout << "\nPlease input a valid selection. \n";

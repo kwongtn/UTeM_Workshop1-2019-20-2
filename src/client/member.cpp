@@ -159,9 +159,9 @@ void memberSearchEntry() {
 	std::vector<std::string> criterias;
 
 	do {
-		heading("Searching Member Entries.");
-		printLine();
 		if (counter > 0) {
+			heading("MEMBER > Search > Criteria Generation > OR/AND Selection");
+			printLine();
 			cout << "\nCurrent " << criteriaStringUser << endl;
 			cout << "\nWould you like an \'OR\' join towards the previous criteria? Default: \'AND\' join" << endl;
 			if (decider()) {
@@ -174,7 +174,7 @@ void memberSearchEntry() {
 			}
 		}
 
-		heading("Searching Member Entries.");
+		heading("MEMBER > Search > Criteria Generation > Column Selection");
 		printLine();
 		menuGen(memberTempDataStore, "colDesc");
 
@@ -203,7 +203,7 @@ void memberSearchEntry() {
 		}
 
 		// Search criteria input
-		heading("MEMBER: Search Criteria Creation");
+		heading("MEMBER > Search > Criteria Generation > Column Selection > Search Statement Generation");
 		printLine();
 		if (counter > 0) {
 			cout << "\nCurrent " << criteriaStringUser << endl << endl;
@@ -236,7 +236,7 @@ void memberSearchEntry() {
 	int selection = 0;
 	// Make and validate selection
 	while (true) {
-		heading("Search Result");
+		heading("MEMBER > Search > Criteria Generation > Ordering Selection");
 		printLine();
 
 		cout << "How would you like to order your results by?" << endl;
@@ -252,7 +252,7 @@ void memberSearchEntry() {
 
 	}
 
-	heading("Search Result");
+	heading("MEMBER > Search > Result");
 	printLine();
 	cout << "Search statement " << criteriaStringUser << endl;
 
@@ -316,7 +316,7 @@ void memberSearchEntry() {
 
 // Create entry
 void memberAddEntry() {
-	heading("Member Creation");
+	heading("MEMBER > Add Entry");
 	printLine();
 	cout << "Please input the following data to facilitate for member creation.\n* Indicates that entries with that value must be unique." << endl << endl;
 
@@ -420,7 +420,7 @@ void memberListEntries() {
 	int selection = 0;
 	// Make and validate selection
 	while (true) {
-		heading("Listing Member entries.");
+		heading("MEMBER > Listing > Ordering");
 		printLine();
 
 		cout << "How would you like to order your results by?" << endl;
@@ -436,6 +436,9 @@ void memberListEntries() {
 		}
 
 	}
+
+	heading("MEMBER > Listing > Results");
+	printLine();
 
 	// Print table headings, and copy into vector space for outputSizing
 	int lineSize = 0;
@@ -494,7 +497,7 @@ void memberListEntries() {
 void memberUpdateEntry() {
 	// To ask if the user wants to search for the relavant data
 	while (true) {
-		heading("Update Member Entries.");
+		heading("MEMBER > Update");
 		printLine();
 		cout << "Updating will be based on matrix no. Do you want to search user data?" << endl;
 
@@ -509,7 +512,7 @@ void memberUpdateEntry() {
 	try {
 		while (true) {
 			system("cls");
-			heading("Update Member Entries.");
+			heading("MEMBER > Update > Input Member Matrix No.");
 			printLine();
 			cout << "Please input member matrix no to update: ";
 			getline(cin, matrixNo);
@@ -580,7 +583,7 @@ void memberUpdateEntry() {
 
 
 	while (true) {
-		heading("Updating member entry");
+		heading("MEMBER > Update > Field Selection");
 		printLine();
 
 		while (true) {
@@ -631,7 +634,8 @@ void memberUpdateEntry() {
 	preparedStatement2 += " WHERE matrixNo=?";
 
 	// Show current changes
-	clearScreen();
+	heading("MEMBER > Update > Update Confirmation");
+	printLine();
 	cout << "Current changes for member with matrix no " << matrixNo << " are :" << endl;
 	for (int i = 0; i < memberTempDataStore2.size(); i++) {
 		cout << left << std::setw(20) << returnString(memberTempDataStore2[i]["colDesc"]);
@@ -672,7 +676,7 @@ void memberUpdateEntry() {
 void memberDeleteEntry() {
 	// To ask if the user wants to search for the relavant data
 	while (true) {
-		heading("Delete Member Entries.");
+		heading("ACTIVITY > Delete Entry");
 		printLine();
 		cout << "Deleting will be based on matrix no. Do you want to search user data?" << endl;
 
@@ -686,8 +690,7 @@ void memberDeleteEntry() {
 	std::string matrixNo;
 	try {
 		while (true){
-			system("cls");
-			heading("Delete Member Entries.");
+			heading("ACTIVITY > Delete Entry > Data Collection");
 			printLine();
 			cout << "Please input member matrix no to delete: ";
 			getline(cin, matrixNo);
@@ -702,6 +705,8 @@ void memberDeleteEntry() {
 
 			// If there are no relavant rows, prompt the user to re-input
 			if (myRows.count() > 0) {
+				heading("MEMBER > Delete Entry > Confirmation");
+				printLine();
 				cout << "Are you sure you want to delete the following entry?" << endl;
 				for (Row row : myRows.fetchAll()) {
 					for (int i = 0; i < row.colCount(); i++) {

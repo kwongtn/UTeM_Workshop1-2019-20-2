@@ -220,13 +220,13 @@ json attendanceTempDataStore3{};
 void attendanceAddEntry(int userID) {
 	// Check if user wants to search for activity ID.
 	while (true) {
-		heading("Attendance Entry Creation");
+		heading("ATTENDANCE > Add Entry");
 		printLine();
 
 		cout << "Before adding data you may want to search for the activity ID. Do you want to do so?" << endl;
 		if (decider()) {
 			while (true) {
-				heading("Activity Search Selection");
+				heading("ATTENDANCE > Add Entry > Search Selection");
 				printLine();
 				cout << "Enter \'1\' to list all entries, or \'2\' to fine tune your search. " << endl;
 				int myInt = inputInt();
@@ -252,7 +252,7 @@ void attendanceAddEntry(int userID) {
 
 	}
 
-	heading("Attendance Entry Creation");
+	heading("ATTENDANCE > Add Entry");
 	printLine();
 	cout << "Please input the following data to facilitate for attendance entry creation.\n\nAn asterisk (*) indicates entries with mandatory input." << endl << endl;
 
@@ -394,13 +394,13 @@ void attendanceAddEntry(int userID) {
 void attendanceBatchAdd(int userID) {
 	// Check if user wants to search for activity ID.
 	while (true) {
-		heading("Attendance Entry Creation");
+		heading("ATTENDANCE > Batch Add Entry");
 		printLine();
 
 		cout << "Before adding data you may want to search for the activity ID. Do you want to do so?" << endl;
 		if (decider()) {
 			while (true) {
-				heading("Activity Search Selection");
+				heading("ATTENDANCE > Batch Add Entry > Search Selection");
 				printLine();
 				cout << "Enter \'1\' to list all entries, or \'2\' to fine tune your search. " << endl;
 				int myInt = inputInt();
@@ -426,15 +426,14 @@ void attendanceBatchAdd(int userID) {
 
 	}
 
-	heading("Attendance Entry Creation: Obtaining Activity ID");
+	heading("ATTENDANCE > Batch Add Entry > Obtaining Activity ID");
 	printLine();
 
-	bool recover = true;
 
 	// Getting activityID
 	int activityID = 0;
 	std::string activityName;
-	while (recover) {
+	while (true) {
 		cout << left << std::setw(30) << "Activity ID *" << "\t: ";
 		activityID = inputInt(false, true);
 
@@ -463,12 +462,22 @@ void attendanceBatchAdd(int userID) {
 		{
 			cout << "ERROR: " << err << endl;
 			cout << "Do you want to try database action again?" << endl;
-			recover = decider();
+			if (decider()) {
+				continue;
+			}
+			else {
+				return;
+			}
 		}
 		catch (...) {
 			cout << "Unknown Error. " << endl;
 			cout << "Do you want to try database action again?" << endl;
-			recover = decider();
+			if (decider()) {
+				continue;
+			}
+			else {
+				return;
+			}
 		}
 	}
 
@@ -477,7 +486,7 @@ void attendanceBatchAdd(int userID) {
 	std::vector<int> memberIDs;
 	std::vector<std::string> matrixNos;
 	while (true) {
-		heading("Attendance Entry Creation: Getting Entries");
+		heading("ATTENDANCE > Batch Add Entry > Obtaining Activity ID > Obtaining Matrix Nos.");
 		printLine();
 		std::string matrixNo;
 		cout << "Input matrix numbers of members, tapping \'Enter\' after each entry. \n- To stop input, enter '1234567'. \n- To delete 1 previous input, enter \'13555\'." << endl << endl;
@@ -502,44 +511,58 @@ void attendanceBatchAdd(int userID) {
 			continue;
 		}
 
-		try {
-			Session sess = getSessionDb();
+		while (true) {
+			try {
+				Session sess = getSessionDb();
 
-			// Check if member exists
-			auto myRows1 = sess.sql("SELECT * FROM MEMBER WHERE matrixNo=?").bind(matrixNo).execute();
+				cout << "Searching database for relevant Matrix No...\r";
 
-			if (myRows1.count() == 0) {
-				cout << "Member does not exist. Do you want to add member?" << endl;
-				if (decider()) {
-					memberAddEntry();
+				// Check if member exists
+				auto myRows1 = sess.sql("SELECT * FROM MEMBER WHERE matrixNo=?").bind(matrixNo).execute();
+
+				if (myRows1.count() == 0) {
+					cout << "Member does not exist. Do you want to add member?" << endl;
+					if (decider()) {
+						memberAddEntry();
+					}
+					continue;
+
 				}
-				continue;
+				else {
+					// Get memberID if exist
+					auto myRows2 = sess.sql("SELECT memberID FROM MEMBER WHERE matrixNo=?").bind(matrixNo).execute();
+
+					auto myRow2 = myRows2.fetchOne();
+
+					std::stringstream ss1;
+					myRow2.get(0).print(ss1);
+					memberIDs.push_back(std::stoi(ss1.str()));
+					matrixNos.push_back(matrixNo);
+
+				}
 
 			}
-			else {
-				// Get memberID if exist
-				auto myRows2 = sess.sql("SELECT memberID FROM MEMBER WHERE matrixNo=?").bind(matrixNo).execute();
-
-				auto myRow2 = myRows2.fetchOne();
-
-				std::stringstream ss1;
-				myRow2.get(0).print(ss1);
-				memberIDs.push_back(std::stoi(ss1.str()));
-				matrixNos.push_back(matrixNo);
-
+			catch (const mysqlx::Error& err)
+			{
+				cout << "ERROR: " << err << endl;
+				cout << "Do you want to try database action again?" << endl;
+				if (decider()) {
+					continue;
+				}
+				else {
+					return;
+				}
 			}
-
-		}
-		catch (const mysqlx::Error& err)
-		{
-			cout << "ERROR: " << err << endl;
-			cout << "Do you want to try database action again?" << endl;
-			recover = decider();
-		}
-		catch (...) {
-			cout << "Unknown Error. " << endl;
-			cout << "Do you want to try database action again?" << endl;
-			recover = decider();
+			catch (...) {
+				cout << "Unknown Error. " << endl;
+				cout << "Do you want to try database action again?" << endl;
+				if (decider()) {
+					continue;
+				}
+				else {
+					return;
+				}
+			}
 		}
 	}
 
@@ -550,8 +573,8 @@ void attendanceBatchAdd(int userID) {
 		preparedStatement1 += ", (?, ?, ?)";
 	}
 
-	recover = true;
-	while (recover) {
+
+	while (true) {
 		try {
 			Session sess = getSessionDb();
 
@@ -565,9 +588,10 @@ void attendanceBatchAdd(int userID) {
 			}
 
 			auto myRows = mySess.execute();
+			cout << "Adding into database...\r";
 
 			if (myRows.getAffectedItemsCount() > 0) {
-				cout << "\nRecord succesfully added" << endl;
+				cout << myRows.getAffectedItemsCount() << " rows added." << endl;
 				break;
 			}
 			else {
@@ -579,12 +603,22 @@ void attendanceBatchAdd(int userID) {
 		{
 			cout << "ERROR: " << err << endl;
 			cout << "Do you want to try database action again?" << endl;
-			recover = decider();
+			if (decider()) {
+				continue;
+			}
+			else {
+				return;
+			}
 		}
 		catch (...) {
 			cout << "Unknown Error";
 			cout << "Do you want to try database action again?" << endl;
-			recover = decider();
+			if (decider()) {
+				continue;
+			}
+			else {
+				return;
+			}
 		}
 
 	}
@@ -637,9 +671,9 @@ void attendanceSearchEntry() {
 	std::vector<std::string> criterias;
 
 	do {
-		heading("Searching Attendance Entries.");
-		printLine();
 		if (counter > 0) {
+			heading("ATTENDANCE > Search > Criteria Generation > OR/AND Selection");
+			printLine();
 			cout << "\nCurrent " << criteriaStringUser << endl;
 			cout << "\nWould you like an \'OR\' join towards the previous criteria? Default: \'AND\' join" << endl;
 			if (decider()) {
@@ -652,7 +686,7 @@ void attendanceSearchEntry() {
 			}
 		}
 
-		heading("Searching Attendance Entries.");
+		heading("ATTENDANCE > Search > Criteria Generation > Column Selection");
 		printLine();
 		menuGen(attendanceTempDataStore, "colDesc");
 
@@ -681,7 +715,7 @@ void attendanceSearchEntry() {
 		}
 
 		// Search criteria input.
-		heading("USER: Search Criteria Creation");
+		heading("ATTENDANCE > Search > Criteria Generation > Column Selection > Search Statement Generation");
 		printLine();
 		if (counter > 0) {
 			cout << "\nCurrent " << criteriaStringUser << endl << endl;
@@ -714,7 +748,7 @@ void attendanceSearchEntry() {
 	int selection = 0;
 	// Make and validate selection
 	while (true) {
-		heading("Search Result");
+		heading("ACTIVITY > Search > Criteria Generation > Ordering Selection");
 		printLine();
 
 		cout << "How would you like to order your results by?" << endl;
@@ -730,7 +764,7 @@ void attendanceSearchEntry() {
 
 	}
 
-	heading("Search Result");
+	heading("ACTIVITY > Search > Result");
 	printLine();
 	cout << "Search statement " << criteriaStringUser << endl;
 
@@ -793,7 +827,7 @@ void attendanceSearchEntry() {
 void attendanceDeleteEntry() {
 	// To ask if the user wants to search for the relavant data
 	while (true) {
-		heading("Delete Attendance Entries.");
+		heading("ATTENDANCE > Delete Entry");
 		printLine();
 		cout << "Deleting will be based on attendance ID. Do you want to search attendance data?" << endl;
 
@@ -815,8 +849,7 @@ void attendanceDeleteEntry() {
 	int attendanceID;
 	try {
 		while (true) {
-			system("cls");
-			heading("Delete Attendance Entries.");
+			heading("ATTENDANCE > Delete Entry > Data Collection");
 			printLine();
 			cout << "Please input member attendance ID to delete: ";
 			attendanceID = inputInt(false, true);
@@ -831,6 +864,8 @@ void attendanceDeleteEntry() {
 
 			// If there are no relavant rows, prompt the user to re-input
 			if (myRows.count() > 0) {
+				heading("ATTENDANCE > Delete Entry > Confirmation");
+				printLine();
 				cout << "Are you sure you want to delete the following entry?" << endl;
 				for (Row row : myRows.fetchAll()) {
 					for (int i = 0; i < row.colCount(); i++) {
@@ -901,7 +936,7 @@ void attendanceListDetail() {
 
 	// To ask if the user wants to search for the relavant data
 	while (true) {
-		heading("Show Detailed Attendance Entries");
+		heading("ATTENDANCE > Show Detail");
 		printLine();
 		cout << "Detailed information will be shown based on attendance ID. Do you want to search attendance data?" << endl;
 
@@ -915,8 +950,7 @@ void attendanceListDetail() {
 	std::string attendanceID;
 	try {
 		while (true) {
-			system("cls");
-			heading("Show Detailed Attendance Entries");
+			heading("ATTENDANCE > Show Detail > Input Attendance ID");
 			printLine();
 			cout << "Please input Attendance ID to show: ";
 			attendanceID = std::to_string(inputInt(false, true));
@@ -927,6 +961,7 @@ void attendanceListDetail() {
 
 			auto myRows = sess.sql(preparedStatement1).bind(attendanceID).execute();
 
+			heading("ATTENDANCE > Show Detail > Results");
 			printLine();
 
 			// If there are no relavant rows, prompt the user to re-input
@@ -980,7 +1015,7 @@ void attendanceList() {
 	int selection = 0;
 	// Make and validate selection
 	while (true) {
-		heading("Listing Member entries.");
+		heading("ATTENDANCE > Listing > Ordering");
 		printLine();
 
 		cout << "How would you like to order your results by?" << endl;
@@ -996,6 +1031,9 @@ void attendanceList() {
 		}
 
 	}
+
+	heading("ATTENDANCE > Listing > Results");
+	printLine();
 
 	// Print table headings, and copy into vector space for outputSizing
 	int lineSize = 0;
