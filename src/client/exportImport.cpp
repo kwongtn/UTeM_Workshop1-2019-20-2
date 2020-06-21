@@ -8,6 +8,122 @@ using namespace ::mysqlx;
 // Define external functions
 Session getSessionDb();
 
+void importSQL() {
+	std::ifstream importFile;
+	std::string filePath = "";
+	std::string statement = "";
+
+	// Ask for input file path & check write access
+	while (true) {
+		try {
+			heading("IMPORT from SQL");
+			printLine();
+
+			cout << "Please input the name (and path) of the file you would like to import from.\n> ";
+			getline(cin, filePath);
+
+			importFile.open(filePath);
+
+			if (importFile.is_open()) {
+				cout << "File succesfully opened." << endl;
+				pause();
+				break;
+			}
+			else {
+				cout << "Unable to open file. Exit to menu?" << endl;
+				if (decider()) {
+					return;
+				}
+			}
+		}
+		catch (...) {
+			cout << "An error occured. Try again?" << endl;
+			if (decider()) {
+				continue;
+			}
+			else {
+				return;
+			}
+		}
+	}
+
+	getline(importFile, statement, (char)importFile.eof());
+
+	heading("IMPORT from SQL > Confirmation");
+	printLine();
+	cout << statement << endl;
+	cout << "Are you sure you want to run the SQL statement above?" << endl;
+	if (!decider()) {
+		return;
+	}
+
+
+	while (true) {
+		try {
+			heading("IMPORT from SQL > Confirmation > Verification");
+			printLine();
+			std::string password;
+			cout << "Please enter the superuser password." << endl;
+			getline(cin, password);
+
+			if (password != SUPERUSER_PASS) {
+				throw "Password Error";
+			}
+			
+			heading("IMPORT from SQL > Confirmation > Verification > Running Statement");
+			printLine();
+			std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+			Session sess = getSessionDb();
+
+			cout << "Running SQL statement" << endl;
+			auto myResult = sess.sql(statement).execute();
+
+			cout << endl;
+			cout << left << std::setw(30) << "Rows Affected" << "\t:" << myResult.getAffectedItemsCount() << endl;
+			cout << left << std::setw(30) << "Warnings" << "\t:" << myResult.getWarningsCount() << endl;
+
+
+			std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+			cout << endl;
+			cout << "Run complete. \nTotal Runtime: " << (std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()) / 1000000.0 << " seconds. " << endl;
+		}
+		catch (const mysqlx::Error& err)
+		{
+			cout << "ERROR: " << err << endl;
+			cout << "Do you want to try database action again?" << endl;
+			if (decider()) {
+				continue;
+			}
+			else {
+				return;
+			}
+		}
+		catch (const std::string& err)
+		{
+			cout << err << endl;
+			cout << "Do you want to try again?" << endl;
+			if (decider()) {
+				continue;
+			}
+			else {
+				return;
+			}
+		}
+		catch (...) {
+			cout << "Error";
+			cout << "Do you want to try again?" << endl;
+			if (decider()) {
+				continue;
+			}
+			else {
+				return;
+			}
+		}
+	}
+	pause();
+
+}
+
 void exportFunc() {
 
 	std::ofstream exportFile;
@@ -644,6 +760,7 @@ void exportImportMenu(int userID) {
 		json menuEntries = {
 			"Export Entries as JSON",
 			"Import Entries from JSON",
+			"Password Required: Import SQL statements"
 		};
 
 
@@ -676,6 +793,9 @@ void exportImportMenu(int userID) {
 				break;
 			case 2:
 				importFunc(userID);
+				break;
+			case 3:
+				importSQL();
 				break;
 			case 10:
 				return;
