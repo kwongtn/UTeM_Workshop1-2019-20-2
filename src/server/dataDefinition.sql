@@ -50,7 +50,8 @@ CREATE TABLE `ATTENDANCE` (
     `activityID` INT NOT NULL,
     `createTime` TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     PRIMARY KEY (`attendanceID`),
-    UNIQUE (`attendanceID`)
+    UNIQUE (`attendanceID`),
+    UNIQUE (`memberID`)
 );
 
 CREATE TABLE `ACTIVITY` (
