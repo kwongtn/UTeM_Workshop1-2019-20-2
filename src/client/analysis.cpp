@@ -493,10 +493,13 @@ void countAttendanceCustomGrouping() {
 
 			menuGen(analysisTempDataStore, "colDesc", "notSelected");
 
-			cout << "Currently selected: " << endl;
-			cout << analysisTempDataStore[selected[0]]["colDesc"];
-			for (int i = 1; i < selected.size(); i++) {
-				cout << ", " << returnString(analysisTempDataStore[selected[i]]["colDesc"]);
+			if (selected.size() > 0) {
+				cout << "Currently selected: " << endl;
+				cout << returnString(analysisTempDataStore[selected[0]]["colDesc"]);
+				for (int i = 1; i < selected.size(); i++) {
+					cout << " > " << returnString(analysisTempDataStore[selected[i]]["colDesc"]);
+				}
+				cout << endl;
 			}
 
 			selection = inputInt();
@@ -562,7 +565,7 @@ void countAttendanceCustomGrouping() {
 	for (int i = 0; i < selected.size(); i++) {
 		cout << returnString(analysisTempDataStore[selected[i]]["colDesc"]);
 		if (i != selected.size() - 1) {
-			cout << ", ";
+			cout << " > ";
 		}
 
 		lineLength += analysisTempDataStore[selected[i]]["outputSizing"];
