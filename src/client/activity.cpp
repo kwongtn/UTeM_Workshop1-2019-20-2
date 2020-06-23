@@ -234,6 +234,9 @@ void activityListEntries() {
 		menuGen(activityTempDataStore, "colDesc");
 		selection = inputInt();
 
+		// Return to menu if user entered "-1"
+		if (selection == -1) return;
+
 		if (selection < activityTempDataStore.size()) {
 			break;
 		}
@@ -337,6 +340,9 @@ void activityAddEntry(int userID) {
 					getline(cin, temp);
 
 				}
+
+				// Return to menu if user entered "-1"
+				if (temp == "-1") return;
 
 
 				if (activityDataStruct[i]["compulsoryInput"] && temp == "") {
@@ -483,6 +489,11 @@ void activitySearchEntry() {
 			cout << "\nPlease select the column you would like to search by: ";
 			try {
 				selection = inputInt();
+
+				// Return to menu if user entered "-1"
+				if (selection == -1) return;
+
+
 				if (selection > activityTempDataStore.size() || selection < 0) {
 					throw "Error";
 				}
@@ -512,6 +523,11 @@ void activitySearchEntry() {
 		std::string criteria = "";
 		std::getline(cin, criteria);
 
+
+		// Return to menu if user entered "-1"
+		if (criteria == "-1") return;
+
+
 		criterias.push_back(criteria);
 		criteriaStringUser += activityTempDataStore[selection]["colDesc"];
 		criteriaStringUser += " is \"" + criteria + "\" \n";
@@ -537,6 +553,11 @@ void activitySearchEntry() {
 		cout << "How would you like to order your results by?" << endl;
 		menuGen(activityTempDataStore2, "colDesc");
 		selection = inputInt();
+
+		// Return to menu if user entered "-1"
+		if (selection == -1) return;
+
+
 		if (selection < activityTempDataStore2.size()) {
 			break;
 		}
@@ -642,6 +663,11 @@ void activityUpdateEntry(int userID) {
 			cout << "Please input activity ID to update: ";
 			getline(cin, activityID);
 
+
+			// Return to menu if user entered "-1"
+			if (activityID == "-1") return;
+
+
 			std::string preparedStatement1 = "SELECT " + columnNamesGen(activityTempDataStore3, "showDuringDeletion", "colName") + " FROM " + innerJoin + " WHERE a.activityID=?";
 
 			Session sess = getSessionDb();
@@ -737,6 +763,9 @@ void activityUpdateEntry(int userID) {
 			menuGen(activityTempDataStore, "colDesc", "notSelected");
 			selection = inputInt();
 
+			// Return to menu if user entered "-1"
+			if (selection == -1) return;
+
 			// Check if selection was previously selected
 			for (int i = 0; i < selected.size(); i++) {
 				if (selection == selected[i]) {
@@ -752,6 +781,11 @@ void activityUpdateEntry(int userID) {
 		std::string newData = "";
 		cout << "Please input the new data for " << activityTempDataStore[selection]["colDesc"] << endl;
 		getline(cin, newData);
+
+
+		// Return to menu if user entered "-1"
+		if (newData == "-1") return;
+
 
 		if (noOfChanges > 0) {
 			preparedStatement2 += ",";
@@ -841,6 +875,11 @@ void activityDeleteEntry() {
 			printLine();
 			cout << "Please input activity ID to delete: ";
 			getline(cin, activityID);
+
+
+			// Return to menu if user entered "-1"
+			if (activityID == "-1") return;
+
 
 			activityTempDataStore.clear();
 
@@ -955,6 +994,11 @@ void activityListDetail() {
 			cout << "Please input activity ID to show: ";
 			activityID = std::to_string(inputInt(false, true));
 
+
+			// Return to menu if user entered "-1"
+			if (activityID == "-1") return;
+
+
 			std::string preparedStatement1 = "SELECT " + columnNamesGen(activityTempDataStore3, "showDuringDeletion", "colName") + " FROM " + innerJoin + " WHERE a.activityID=?";
 
 			Session sess = getSessionDb();
@@ -1051,6 +1095,9 @@ MenuStart:
 			activityListDetail();
 			break;
 		case 10:
+			return;
+			break;
+		case -1:
 			return;
 			break;
 		default:

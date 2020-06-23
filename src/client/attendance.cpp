@@ -230,6 +230,10 @@ void attendanceAddEntry(int userID) {
 				printLine();
 				cout << "Enter \'1\' to list all entries, or \'2\' to fine tune your search. " << endl;
 				int myInt = inputInt();
+
+				// Return to menu if user entered "-1"
+				if (myInt == -1) return;
+
 				if (myInt == 1) {
 					activityListEntries();
 					break;
@@ -263,6 +267,9 @@ void attendanceAddEntry(int userID) {
 		std::string matrixNo;
 		cout << left << std::setw(30) << "Matrix No. *" << "\t: ";
 		getline(cin, matrixNo);
+
+		// Return to menu if user entered "-1"
+		if (matrixNo == "-1") return;
 
 		try {
 			Session sess = getSessionDb();
@@ -310,9 +317,12 @@ void attendanceAddEntry(int userID) {
 
 	// Getting activityID
 	int activityID = 0;
-	while (recover) {
+	while (true) {
 		cout << left << std::setw(30) << "Activity ID *" << "\t: ";
 		activityID = inputInt(false, true);
+
+		// Return to menu if user entered "-1"
+		if (activityID == -1) return;
 
 		try {
 			Session sess = getSessionDb();
@@ -404,6 +414,10 @@ void attendanceBatchAdd(int userID) {
 				printLine();
 				cout << "Enter \'1\' to list all entries, or \'2\' to fine tune your search. " << endl;
 				int myInt = inputInt();
+
+				// Return to menu if user entered "-1"
+				if (myInt == -1) return;
+
 				if (myInt == 1) {
 					activityListEntries();
 					break;
@@ -436,6 +450,9 @@ void attendanceBatchAdd(int userID) {
 	while (true) {
 		cout << left << std::setw(30) << "Activity ID *" << "\t: ";
 		activityID = inputInt(false, true);
+
+		// Return to menu if user entered "-1"
+		if (activityID == -1) return;
 
 		try {
 			Session sess = getSessionDb();
@@ -509,6 +526,9 @@ void attendanceBatchAdd(int userID) {
 			matrixNos.pop_back();
 			memberIDs.pop_back();
 			continue;
+		}
+		else if (matrixNo == "-1") {
+			return;
 		}
 
 		while (true) {
@@ -700,6 +720,10 @@ void attendanceSearchEntry() {
 			cout << "\nPlease select the column you would like to search by: ";
 			try {
 				selection = inputInt();
+
+				// Return to menu if user entered "-1"
+				if (selection == -1) return;
+
 				if (selection > attendanceTempDataStore.size() || selection < 0) {
 					throw "Error";
 				}
@@ -729,6 +753,9 @@ void attendanceSearchEntry() {
 		std::string criteria = "";
 		std::getline(cin, criteria);
 
+		// Return to menu if user entered "-1"
+		if (criteria == "-1") return;
+
 		criterias.push_back(criteria);
 		criteriaStringUser += attendanceTempDataStore[selection]["colDesc"];
 		criteriaStringUser += " is \"" + criteria + "\" \n";
@@ -754,6 +781,8 @@ void attendanceSearchEntry() {
 		cout << "How would you like to order your results by?" << endl;
 		menuGen(attendanceTempDataStore2, "colDesc");
 		selection = inputInt();
+		// Return to menu if user entered "-1"
+		if (selection == -1) return;
 		if (selection < attendanceTempDataStore2.size()) {
 			break;
 		}
@@ -853,6 +882,8 @@ void attendanceDeleteEntry() {
 			printLine();
 			cout << "Please input member attendance ID to delete: ";
 			attendanceID = inputInt(false, true);
+			// Return to menu if user entered "-1"
+			if (attendanceID == -1) return;
 
 			std::string preparedStatement1 = "SELECT " + columnNamesGen(attendanceDataStruct, "showDuringDeletion", "altColumnName") + " FROM " + innerJoin + " WHERE a.attendanceID=?";
 
@@ -955,6 +986,9 @@ void attendanceListDetail() {
 			cout << "Please input Attendance ID to show: ";
 			attendanceID = std::to_string(inputInt(false, true));
 
+			// Return to menu if user entered "-1"
+			if (attendanceID == "-1") return;
+
 			std::string preparedStatement1 = "SELECT " + columnNamesGen(attendanceTempDataStore3, "showDuringDeletion", "colName") + " FROM " + innerJoin + " WHERE attendanceID=?";
 
 			Session sess = getSessionDb();
@@ -1021,6 +1055,8 @@ void attendanceList() {
 		cout << "How would you like to order your results by?" << endl;
 		menuGen(attendanceTempDataStore, "colDesc");
 		selection = inputInt();
+		// Return to menu if user entered "-1"
+		if (selection == -1) return;
 
 		if (selection < attendanceTempDataStore.size()) {
 			break;
@@ -1139,6 +1175,9 @@ MenuStart:
 			attendanceListDetail();
 			break;
 		case 10:
+			return;
+			break;
+		case -1:
 			return;
 			break;
 		default:

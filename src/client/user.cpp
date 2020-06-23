@@ -185,6 +185,10 @@ void userSearchEntry() {
 			cout << "\nPlease select the column you would like to search by: ";
 			try {
 				selection = inputInt();
+
+				// Return to menu if user entered "-1"
+				if (selection == -1) return;
+
 				if (selection > userTempDataStore.size() || selection < 0) {
 					throw "Error";
 				}
@@ -214,6 +218,9 @@ void userSearchEntry() {
 		std::string criteria = "";
 		getline(cin, criteria);
 
+		// Return to menu if user entered "-1"
+		if (criteria == "-1") return;
+
 		criterias.push_back(criteria);
 		criteriaStringUser += userTempDataStore[selection]["colDesc"];
 		criteriaStringUser += " is \"" + criteria + "\" \n";
@@ -239,6 +246,10 @@ void userSearchEntry() {
 		cout << "How would you like to order your results by?" << endl;
 		menuGen(userTempDataStore2, "colDesc");
 		selection = inputInt();
+
+		// Return to menu if user entered "-1"
+		if (selection == -1) return;
+
 		if (selection < userTempDataStore2.size()) {
 			break;
 		}
@@ -325,6 +336,9 @@ void userAddEntry() {
 		cout << left << std::setw(30) << "Matrix No.*" << "\t: ";
 		getline(cin, matrixNo);
 
+		// Return to menu if user entered "-1"
+		if (matrixNo == "-1") return;
+
 		try {
 			Session sess = getSessionDb();
 
@@ -378,6 +392,9 @@ void userAddEntry() {
 	while (true) {
 		cout << left << std::setw(30) << "Password*" << "\t: ";
 		getline(cin, password);
+
+		// Return to menu if user entered "-1"
+		if (password == "-1") return;
 
 		if (password == "") {
 			cout << "Please enter a password." << endl;
@@ -451,6 +468,9 @@ void userListEntries() {
 		cout << "How would you like to order your results by?" << endl;
 		menuGen(userTempDataStore, "colDesc");
 		selection = inputInt();
+
+		// Return to menu if user entered "-1"
+		if (selection == -1) return;
 
 		if (selection < userTempDataStore.size()) {
 			break;
@@ -541,6 +561,9 @@ void userUpdateEntry() {
 			cout << "Please input member matrix no to update: ";
 			getline(cin, matrixNo);
 
+			// Return to menu if user entered "-1"
+			if (matrixNo == "-1") return;
+
 			std::string preparedStatement1 = "SELECT " + columnNamesGen(userDataStruct, "showDuringDeletion", "altColumnName") + " FROM " + innerJoin + " WHERE a.matrixNo=?";
 
 			Session sess = getSessionDb();
@@ -596,6 +619,9 @@ void userUpdateEntry() {
 		printLine();
 		cout << "Please enter new password: ";
 		getline(cin, password);
+
+		// Return to menu if user entered "-1"
+		if (password == "-1") return;
 
 		if (password == "") {
 			cout << "Please enter a value for password" << endl;
@@ -669,6 +695,9 @@ void userDeleteEntry() {
 			printLine();
 			cout << "Please input member matrix no to delete: ";
 			getline(cin, matrixNo);
+
+			// Return to menu if user entered "-1"
+			if (matrixNo == "-1") return;
 
 			std::string preparedStatement1 = "SELECT " + columnNamesGen(userTempDataStore, "showDuringDeletion", "altColumnName") + " FROM " + innerJoin + " WHERE b.matrixNo=?";
 
@@ -784,6 +813,9 @@ MenuStart:
 			userSearchEntry();
 			break;
 		case 10:
+			return;
+			break;
+		case -1:
 			return;
 			break;
 		default:

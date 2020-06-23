@@ -172,6 +172,9 @@ void countMemberAttendance() {
 				}
 			}
 
+			heading("ANALYSIS > Filtering Intent > Criteration Selection");
+			printLine();
+
 			json myJson = { "More than", "Less than", "Equals to" };
 
 			menuGen(myJson);
@@ -179,6 +182,11 @@ void countMemberAttendance() {
 			cout << endl;
 			cout << "Your selection: ";
 			selection = inputInt(false, true);
+
+
+			// Return to menu if user entered "-1"
+			if (selection == -1) return;
+
 
 			if (selection < myJson.size()) {
 				filterByOperatorSys += " counter";
@@ -386,6 +394,9 @@ void countActivityAttendance() {
 
 		getline(cin, criteria);
 
+		// Return to menu if user entered "-1"
+		if (criteria == "-1") return;
+
 		if (criteria == "") {
 			filterBasedOnDateTime = false;
 		}
@@ -503,6 +514,8 @@ void countAttendanceCustomGrouping() {
 			}
 
 			selection = inputInt();
+			// Return to menu if user entered "-1"
+			if (selection == -1) return;
 
 			// Check if selection was previously selected
 			if ((selection > analysisTempDataStore.size() - 1) || vectorContains(selected, selection)) {
@@ -549,7 +562,6 @@ void countAttendanceCustomGrouping() {
 		preparedStatement += returnString(analysisTempDataStore[selected[i]]["colName"]) + " , ";
 	}
 
-	pause();
 	preparedStatement += " count(MemberID) AS Count FROM " + innerJoin;
 	preparedStatement += " GROUP BY " + groupBys[0];
 	for (int i = 1; i < groupBys.size(); i++) {
@@ -661,12 +673,10 @@ MenuStart:
 		case 5:
 			countActivityAttendance();
 			break;
-			/*
-				case 6:
-					attendanceListDetail();
-					break;
-*/
 		case 10:
+			return;
+			break;
+		case -1:
 			return;
 			break;
 		default:

@@ -166,6 +166,7 @@ int main() {
 		heading("Welcome " + userName + ". Please select your scope of action.");
 		printLine();
 
+		cout << "Enter \"-1\" in any inputs (excluding yes/no prompts) to go back to sub-menu. \n\n";
 
 
 		for (int i = 0; i < menuEntries.size(); i++) {
@@ -208,7 +209,7 @@ int main() {
 				superUser();
 			}
 			else if (selection == 10 || selection == -1) {
-cout << "Thank you for using attendance management system by KwongTN." << endl;
+				cout << "Thank you for using attendance management system by KwongTN." << endl;
 				pause();
 				exit(0);
 			}

@@ -188,6 +188,8 @@ void memberSearchEntry() {
 			cout << "\nPlease select the column you would like to search by: ";
 			try {
 				selection = inputInt();
+				// Return to menu if user entered "-1"
+				if (selection == -1) return;
 				if (selection > memberTempDataStore.size() || selection < 0) {
 					throw "Error";
 				}
@@ -216,6 +218,8 @@ void memberSearchEntry() {
 
 		std::string criteria = "";
 		std::getline(cin, criteria);
+		// Return to menu if user entered "-1"
+		if (criteria == "-1") return;
 
 		criterias.push_back(criteria);
 		criteriaStringUser += memberTempDataStore[selection]["colDesc"];
@@ -242,6 +246,8 @@ void memberSearchEntry() {
 		cout << "How would you like to order your results by?" << endl;
 		menuGen(memberTempDataStore2, "colDesc");
 		selection = inputInt();
+		// Return to menu if user entered "-1"
+		if (selection == -1) return;
 		if (selection < memberTempDataStore2.size()) {
 			break;
 		}
@@ -335,6 +341,8 @@ void memberAddEntry() {
 
 				cout << left << std::setw(30) << currString << "\t: ";
 				getline(cin, temp);
+				// Return to menu if user entered "-1"
+				if (temp == "-1") return;
 				if (memberDataStruct[i]["compulsoryInput"] && temp == "") {
 					cout << "Please input a value.";
 				}
@@ -427,6 +435,10 @@ void memberListEntries() {
 		menuGen(memberTempDataStore, "colDesc");
 		selection = inputInt();
 
+		// Return to menu if user entered "-1"
+		if (selection == -1) return;
+
+
 		if (selection < memberTempDataStore.size()) {
 			break;
 		}
@@ -517,6 +529,9 @@ void memberUpdateEntry() {
 			cout << "Please input member matrix no to update: ";
 			getline(cin, matrixNo);
 
+			// Return to menu if user entered "-1"
+			if (matrixNo == "-1") return;
+
 			std::string preparedStatement1 = "SELECT " + columnNamesGen(memberDataStruct, "showDuringDeletion", "columnName") + " FROM " + thisTableName + " WHERE matrixNo=?";
 
 			Session sess = getSessionDb();
@@ -590,6 +605,9 @@ void memberUpdateEntry() {
 			menuGen(memberTempDataStore, "colDesc", "notSelected");
 			selection = inputInt();
 
+			// Return to menu if user entered "-1"
+			if (selection == -1) return;
+
 			// Check if selection was previously selected
 			for (int i = 0; i < selected.size(); i++) {
 				if (selection == selected[i]) {
@@ -605,6 +623,9 @@ void memberUpdateEntry() {
 		std::string newData = "";
 		cout << "Please input the new data for " << memberTempDataStore[selection]["colDesc"] << endl;
 		getline(cin, newData);
+
+		// Return to menu if user entered "-1"
+		if (newData == "-1") return;
 
 		if (noOfChanges > 0) {
 			preparedStatement2 += ",";
@@ -689,11 +710,14 @@ void memberDeleteEntry() {
 
 	std::string matrixNo;
 	try {
-		while (true){
+		while (true) {
 			heading("ACTIVITY > Delete Entry > Data Collection");
 			printLine();
 			cout << "Please input member matrix no to delete: ";
 			getline(cin, matrixNo);
+
+			// Return to menu if user entered "-1"
+			if (matrixNo == "-1") return;
 
 			std::string preparedStatement1 = "SELECT " + columnNamesGen(memberDataStruct, "showDuringDeletion", "columnName") + " FROM " + thisTableName + " WHERE matrixNo=?";
 
@@ -813,6 +837,9 @@ MenuStart:
 			memberSearchEntry();
 			break;
 		case 10:
+			return;
+			break;
+		case -1:
 			return;
 			break;
 		default:

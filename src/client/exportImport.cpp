@@ -21,6 +21,8 @@ void importSQL() {
 
 			cout << "Please input the name (and path) of the file you would like to import from.\n> ";
 			getline(cin, filePath);
+			// Return to menu if user entered "-1"
+			if (filePath == "-1") return;
 
 			importFile.open(filePath);
 
@@ -66,10 +68,13 @@ void importSQL() {
 			cout << "Please enter the superuser password." << endl;
 			getline(cin, password);
 
+			// Return to menu if user entered "-1"
+			if (password == "-1") return;
+
 			if (password != SUPERUSER_PASS) {
 				throw "Password Error";
 			}
-			
+
 			heading("IMPORT from SQL > Confirmation > Verification > Running Statement");
 			printLine();
 			std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
@@ -138,6 +143,10 @@ void exportFunc() {
 
 		cout << "Please input the name (and path) of the file you would like to export to.\n> ";
 		getline(cin, filePath);
+
+		// Return to menu if user entered "-1"
+		if (filePath == "-1") return;
+
 		exportFile.open(filePath);
 
 		if (exportFile.is_open()) {
@@ -187,6 +196,9 @@ void exportFunc() {
 
 			menuGen(selectionMenu, "tableName", "notSelected");
 			selection = inputInt();
+
+			// Return to menu if user entered "-1"
+			if (selection == -1) return;
 
 			// Check if selection was previously selected
 			if (selection == 4) {
@@ -469,6 +481,9 @@ void importFunc(int userID) {
 
 		cout << "Please input the name (and path) of the file you would like to import from.\n> ";
 		getline(cin, filePath);
+
+		// Return to menu if user entered "-1"
+		if (filePath == "-1") return;
 
 		importFile.open(filePath);
 
@@ -798,6 +813,9 @@ void exportImportMenu(int userID) {
 				importSQL();
 				break;
 			case 10:
+				return;
+				break;
+			case -1:
 				return;
 				break;
 			default:
