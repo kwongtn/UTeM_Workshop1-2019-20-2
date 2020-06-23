@@ -9,19 +9,22 @@ void superUser() {
 		std::string statement = "";
 
 		// Get database statement to be executed.
-		heading("Super User Mode. \nAny action done here will directly affect database. Use carefully.");
+		heading("Super User Mode. \nAny action done here will directly affect database. Use carefully. \nEnter \'exit;\' to exit superuser mode and \'clear\' to clear screen.");
 		printLine();
 
-		cout << "> ";
-		getline(cin, statement, ';');
-		cin.ignore();
+		while (true) {
 
-		heading("Super User Mode. \nAny action done here will directly affect database. Use carefully.");
-		printLine();
-		cout << "Are you sure you want to execute the following statement? " << endl << endl;
-		cout << "> " << statement << endl << endl;
+			cout << "> ";
+			getline(cin, statement, ';');
+			cin.ignore();
 
-		if (decider()) {
+			if (statement == "exit") {
+				return;
+			}
+			else if (statement == "clear") {
+				break;
+			}
+
 			try {
 				auto db = getSessionDb();
 
@@ -32,7 +35,8 @@ void superUser() {
 				try {
 					myResult.getAffectedItemsCount();
 					cout << left << std::setw(30) << "Rows affected" << ": " << myResult.getAffectedItemsCount() << endl;
-				} catch (...) {}
+				}
+				catch (...) {}
 
 				try {
 					myResult.getWarningsCount();
@@ -58,7 +62,8 @@ void superUser() {
 							cout << endl;
 						}
 					}
-				} catch (...){}
+				}
+				catch (...) {}
 
 			}
 			catch (const mysqlx::Error& err) {
@@ -71,11 +76,9 @@ void superUser() {
 				cout << "Unknown error" << endl;
 			}
 
+			cout << endl;
 
-		}
-		cout << "\n\nExit to main menu?" << endl;
-		if (decider()) {
-			return;
+
 		}
 
 	}
