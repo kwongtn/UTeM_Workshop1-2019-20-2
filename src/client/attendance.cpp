@@ -6,6 +6,7 @@ using namespace ::mysqlx;
 Session getSessionDb();
 void memberListEntries();
 void memberSearchEntry();
+void activityAddEntry(int);
 void activityListEntries();
 void activitySearchEntry();
 void memberAddEntry();
@@ -331,9 +332,11 @@ void attendanceAddEntry(int userID) {
 			auto myRows2 = sess.sql("SELECT activityID FROM ACTIVITY WHERE activityID=?").bind(std::to_string(activityID)).execute();
 
 			if (myRows2.count() == 0) {
-				cout << "Activity does not exist. Do you want to add member?" << endl;
+				cout << "Activity does not exist. Do you want to add activity?" << endl;
 				if (decider()) {
-					memberAddEntry();
+					activityAddEntry(userID);
+					cout << "Please re-enter the activity ID." << endl;
+					pause();
 					continue;
 				}
 				else {
@@ -350,12 +353,22 @@ void attendanceAddEntry(int userID) {
 		{
 			cout << "ERROR: " << err << endl;
 			cout << "Do you want to try database action again?" << endl;
-			recover = decider();
+			if (decider()) {
+				continue;
+			}
+			else {
+				return;
+			}
 		}
 		catch (...) {
 			cout << "Unknown Error. " << endl;
 			cout << "Do you want to try database action again?" << endl;
-			recover = decider();
+			if (decider()) {
+				continue;
+			}
+			else {
+				return;
+			}
 		}
 	}
 

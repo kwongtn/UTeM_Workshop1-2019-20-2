@@ -21,7 +21,7 @@ bool testSession();
 Session getSessionDb();
 
 int userID = 1;
-std::string userName = "- You are now in no-login mode";
+std::string userName = "- You are now in DEBUG:no-login mode";
 
 bool login() {
 	heading("Login Page");

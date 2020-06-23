@@ -237,6 +237,7 @@ void exportFunc() {
 
 	heading("EXPORT > Table Selection > Execution");
 	printLine();
+	cout << "Press CTRL+C anytime to abort the program." << endl << endl;
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 	for (int i = 0; i < selected.size() - 1; i++) {
 		std::chrono::steady_clock::time_point begin0 = std::chrono::steady_clock::now();
@@ -527,6 +528,8 @@ void importFunc(int userID) {
 
 	heading("IMPORT from JSON > Data Preview > Warning > Execution");
 	printLine();
+	cout << "Press CTRL+C anytime to abort the program." << endl << endl;
+
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 	for (int i = 0; i < importDataStruct.size(); i++) {
 		std::chrono::steady_clock::time_point begin0 = std::chrono::steady_clock::now();
