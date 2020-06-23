@@ -156,19 +156,36 @@ void countMemberAttendance() {
 		int selection = 1000;
 
 		while (true) {
-			heading("ANALYSIS > Filtering Intent > Criteration Selection");
-			printLine();
-
 			if (counter > 0) {
-				cout << "\nCurrent criteria: " << filterByOperatorUser << endl;
-				cout << "\nWould you like an \'OR\' join towards the previous criteria? Default: \'AND\' join" << endl;
-				if (decider()) {
-					filterByOperatorSys += " OR ";
-					filterByOperatorUser += " OR ";
-				}
-				else {
-					filterByOperatorSys += " AND ";
-					filterByOperatorUser += " AND ";
+				while (true) {
+					heading("ANALYSIS > Filtering Intent > Criteration Selection > OR/AND Selection");
+					printLine();
+					cout << "\nCurrent criteria: " << filterByOperatorUser << endl;
+					cout << "\nWould you like an \'OR\' join  or \'AND\' join towards the previous criteria? " << endl;
+					cout << 0 << "\t:" << "AND join" << endl;
+					cout << 1 << "\t:" << "OR join" << endl << endl;
+					cout << "Your choice: ";
+					int choice = inputInt(false);
+
+					if (choice == 0 || choice == 1) {
+						if (choice == 0) {
+							filterByOperatorSys += " AND ";
+							filterByOperatorUser += " AND ";
+						}
+						else {
+							filterByOperatorSys += " OR ";
+							filterByOperatorUser += " OR ";
+						}
+						break;
+					}
+					else {
+						if (choice == -1) {
+							return;
+						}
+						cout << "Input error. Please try again." << endl;
+						pause();
+					}
+
 				}
 			}
 

@@ -692,17 +692,35 @@ void attendanceSearchEntry() {
 
 	do {
 		if (counter > 0) {
-			heading("ATTENDANCE > Search > Criteria Generation > OR/AND Selection");
-			printLine();
-			cout << "\nCurrent " << criteriaStringUser << endl;
-			cout << "\nWould you like an \'OR\' join towards the previous criteria? Default: \'AND\' join" << endl;
-			if (decider()) {
-				criteriaStringSys += " OR ";
-				criteriaStringUser += " OR ";
-			}
-			else {
-				criteriaStringSys += " AND ";
-				criteriaStringUser += " AND ";
+			while (true) {
+				heading("ATTENDANCE > Search > Criteria Generation > OR/AND Selection");
+				printLine();
+				cout << "\nCurrent " << criteriaStringUser << endl;
+				cout << "\nWould you like an \'OR\' join  or \'AND\' join towards the previous criteria? " << endl;
+				cout << 0 << "\t:" << "AND join" << endl;
+				cout << 1 << "\t:" << "OR join" << endl << endl;
+				cout << "Your choice: ";
+				int choice = inputInt(false);
+
+				if (choice == 0 || choice == 1) {
+					if (choice == 0) {
+						criteriaStringSys += " AND ";
+						criteriaStringUser += " AND ";
+					}
+					else {
+						criteriaStringSys += " OR ";
+						criteriaStringUser += " OR ";
+					}
+					break;
+				}
+				else {
+					if (choice == -1) {
+						return;
+					}
+					cout << "Input error. Please try again." << endl;
+					pause();
+				}
+
 			}
 		}
 
