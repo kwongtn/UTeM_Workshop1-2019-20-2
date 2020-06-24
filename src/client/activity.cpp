@@ -250,56 +250,71 @@ void activityListEntries() {
 	heading("ACTIVITY > Listing > Results");
 	printLine();
 
-	// Print table headings, and copy into vector space for outputSizing
-	int lineSize = 0;
-	std::vector<int> outputSizingVector;
-	for (int i = 0; i < activityDataStruct.size(); i++) {
-		if (activityDataStruct[i]["selected"]) {
-			cout << left << std::setw(activityDataStruct[i]["outputSizing"]) << returnString(activityDataStruct[i]["columnDescription"]);
+	while (true) {
+		// Print table headings, and copy into vector space for outputSizing
+		int lineSize = 0;
+		std::vector<int> outputSizingVector;
+		for (int i = 0; i < activityDataStruct.size(); i++) {
+			if (activityDataStruct[i]["selected"]) {
+				cout << left << std::setw(activityDataStruct[i]["outputSizing"]) << returnString(activityDataStruct[i]["columnDescription"]);
 
-			outputSizingVector.push_back(activityDataStruct[i]["outputSizing"]);
+				outputSizingVector.push_back(activityDataStruct[i]["outputSizing"]);
 
-			lineSize += activityDataStruct[i]["outputSizing"];
+				lineSize += activityDataStruct[i]["outputSizing"];
 
-		}
-	}
-
-	cout << endl;
-
-	printLine('=', lineSize);
-
-	// Print table content
-	try {
-		Session sess = getSessionDb();
-
-		std::string preparedStatement = "SELECT " + columnNamesGen(activityDataStruct, "selected", "altColumnName") + " FROM " + innerJoin + " ORDER BY " + returnString(activityTempDataStore[selection]["colName"]);
-
-		auto myRows = sess.sql(preparedStatement)
-			.execute();
-
-		int rowCount = 0;
-		for (Row row : myRows.fetchAll()) {
-			for (int i = 0; i < row.colCount(); i++) {
-				cout << left << std::setw(outputSizingVector[i]) << row[i];
 			}
-			cout << endl;
-
-			rowCount++;
 		}
 
 		cout << endl;
 
-		cout << "Returned " << rowCount << " results." << endl;
+		printLine('=', lineSize);
 
-	}
-	catch (const mysqlx::Error& err)
-	{
-		cout << "ERROR: " << err << endl;
-	}
-	catch (...) {
-		cout << "Unknown Error";
-	}
+		// Print table content
+		try {
+			Session sess = getSessionDb();
 
+			std::string preparedStatement = "SELECT " + columnNamesGen(activityDataStruct, "selected", "altColumnName") + " FROM " + innerJoin + " ORDER BY " + returnString(activityTempDataStore[selection]["colName"]);
+
+			auto myRows = sess.sql(preparedStatement)
+				.execute();
+
+			int rowCount = 0;
+			for (Row row : myRows.fetchAll()) {
+				for (int i = 0; i < row.colCount(); i++) {
+					cout << left << std::setw(outputSizingVector[i]) << row[i];
+				}
+				cout << endl;
+
+				rowCount++;
+			}
+
+			cout << endl;
+
+			cout << "Returned " << rowCount << " results." << endl;
+			break;
+		}
+		catch (const mysqlx::Error& err)
+		{
+			cout << "ERROR: " << err << endl;
+			cout << "Do you want to try database action again?" << endl;
+			if (decider()) {
+				continue;
+			}
+			else {
+				return;
+			}
+		}
+		catch (...) {
+			cout << "Unknown Error";
+			cout << "Do you want to try again?" << endl;
+			if (decider()) {
+				continue;
+			}
+			else {
+				return;
+			}
+		}
+	}
 	cout << endl;
 	pause();
 }
@@ -375,8 +390,7 @@ void activityAddEntry(int userID) {
 	}
 	preparedStatement += ")";
 
-	bool recover = true;
-	while (recover) {
+	while (true) {
 		try {
 			Session sess = getSessionDb();
 
@@ -401,12 +415,22 @@ void activityAddEntry(int userID) {
 		{
 			cout << "ERROR: " << err << endl;
 			cout << "Do you want to try database action again?" << endl;
-			recover = decider();
+			if (decider()) {
+				continue;
+			}
+			else {
+				return;
+			}
 		}
 		catch (...) {
 			cout << "Unknown Error";
-			cout << "Do you want to try database action again?" << endl;
-			recover = decider();
+			cout << "Do you want to try again?" << endl;
+			if (decider()) {
+				continue;
+			}
+			else {
+				return;
+			}
 		}
 
 	}
@@ -609,40 +633,56 @@ void activitySearchEntry() {
 
 	printLine('=', lineSize);
 
+	while (true) {
+		try {
+			Session sess = getSessionDb();
 
-	try {
-		Session sess = getSessionDb();
-
-		auto mySess = sess.sql(preparedStatement);
-		for (int i = 0; i < criterias.size(); i++) {
-			mySess.bind(criterias[i]);
-		}
-
-		auto myRows = mySess.execute();
-
-		// Print table content
-		int rowCount = 0;
-		for (Row row : myRows.fetchAll()) {
-			for (int i = 0; i < row.colCount(); i++) {
-				cout << left << std::setw(activityTempDataStore3[i]["outputSizing"]) << row[i];
+			auto mySess = sess.sql(preparedStatement);
+			for (int i = 0; i < criterias.size(); i++) {
+				mySess.bind(criterias[i]);
 			}
+
+			auto myRows = mySess.execute();
+
+			// Print table content
+			int rowCount = 0;
+			for (Row row : myRows.fetchAll()) {
+				for (int i = 0; i < row.colCount(); i++) {
+					cout << left << std::setw(activityTempDataStore3[i]["outputSizing"]) << row[i];
+				}
+				cout << endl;
+
+				rowCount++;
+			}
+
 			cout << endl;
 
-			rowCount++;
+			cout << "Returned " << rowCount << " results." << endl;
+
+			break;
 		}
-
-		cout << endl;
-
-		cout << "Returned " << rowCount << " results." << endl;
+		catch (const mysqlx::Error& err)
+		{
+			cout << "ERROR: " << err << endl;
+			cout << "Do you want to try database action again?" << endl;
+			if (decider()) {
+				continue;
+			}
+			else {
+				return;
+			}
+		}
+		catch (...) {
+			cout << "Unknown Error";
+			cout << "Do you want to try again?" << endl;
+			if (decider()) {
+				continue;
+			}
+			else {
+				return;
+			}
+		}
 	}
-	catch (const mysqlx::Error& err)
-	{
-		cout << "ERROR: " << err << endl;
-	}
-	catch (...) {
-		cout << "Unknown Error";
-	}
-
 	pause();
 }
 
@@ -709,25 +749,41 @@ void activityUpdateEntry(int userID) {
 				}
 
 				// Get activity name
-				try {
-					std::stringstream ss1;
+				while (true) {
+					try {
+						std::stringstream ss1;
 
-					Session sess = getSessionDb();
-					auto mySess = sess.sql("SELECT activityName FROM " + thisTableName + " WHERE activityID=?").bind(activityID).execute();
+						Session sess = getSessionDb();
+						auto mySess = sess.sql("SELECT activityName FROM " + thisTableName + " WHERE activityID=?").bind(activityID).execute();
 
-					auto myRow = mySess.fetchOne();
+						auto myRow = mySess.fetchOne();
 
-					myRow.get(0).print(ss1);
-					activityName = ss1.str();
+						myRow.get(0).print(ss1);
+						activityName = ss1.str();
+						break;
+					}
+					catch (const mysqlx::Error& err)
+					{
+						cout << "ERROR: " << err << endl;
+						cout << "Do you want to try database action again?" << endl;
+						if (decider()) {
+							continue;
+						}
+						else {
+							return;
+						}
+					}
+					catch (...) {
+						cout << "Activity Name: Unknown Error";
+						cout << "Do you want to try again?" << endl;
+						if (decider()) {
+							continue;
+						}
+						else {
+							return;
+						}
+					}
 				}
-				catch (const mysqlx::Error& err)
-				{
-					cout << "ERROR: " << err << endl;
-				}
-				catch (...) {
-					cout << "Activity Name: Unknown Error";
-				}
-
 
 				if (decider()) {
 					break;
