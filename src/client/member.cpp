@@ -621,6 +621,7 @@ void memberUpdateEntry() {
 		printLine();
 
 		while (true) {
+			ReenterUpdateField:
 			menuGen(memberTempDataStore, "colDesc", "notSelected");
 			selection = inputInt();
 
@@ -632,7 +633,7 @@ void memberUpdateEntry() {
 				if (selection == selected[i]) {
 					cout << "Please input a valid selection." << endl;
 					pause();
-					continue;
+					goto ReenterUpdateField;
 				}
 			}
 			break;
@@ -788,16 +789,25 @@ void memberDeleteEntry() {
 	std::string preparedStatement2 = "DELETE FROM " + thisTableName + " WHERE matrixNo=?";
 
 	if (decider()) {
-		Session sess = getSessionDb();
-		auto myRows = sess.sql(preparedStatement2).bind(matrixNo).execute();
+		try {
+			Session sess = getSessionDb();
+			auto myRows = sess.sql(preparedStatement2).bind(matrixNo).execute();
 
-		cout << endl;
+			cout << endl;
 
-		if (myRows.getAffectedItemsCount() > 0) {
-			cout << "Deletion succesful. " << myRows.getAffectedItemsCount() << " rows affected." << endl;
+			if (myRows.getAffectedItemsCount() > 0) {
+				cout << "Deletion succesful. " << myRows.getAffectedItemsCount() << " rows affected." << endl;
+			}
+			else {
+				cout << "There are probably some errors on the way." << endl;
+			}
 		}
-		else {
-			cout << "There are probably some errors on the way." << endl;
+		catch (const mysqlx::Error& err)
+		{
+			cout << "ERROR: " << err << endl;
+		}
+		catch (...) {
+			cout << "Unknown Error";
 		}
 	}
 	else {

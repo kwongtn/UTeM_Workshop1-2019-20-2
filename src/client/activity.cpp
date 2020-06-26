@@ -929,6 +929,17 @@ void activityUpdateEntry(int userID) {
 }
 
 void activityDeleteEntry() {
+	// Copies relavant data into tempDataStruct
+	int tracker = 0;
+	for (int i = 0; i < activityDataStruct.size(); i++) {
+		if (activityDataStruct[i]["showDuringDeletion"]) {
+			activityTempDataStore[tracker]["columnDescription"] = activityDataStruct[i]["columnDescription"];
+			activityTempDataStore[tracker]["showDuringDeletion"] = activityDataStruct[i]["showDuringDeletion"];
+			activityTempDataStore[tracker]["altColumnName"] = activityDataStruct[i]["altColumnName"];
+
+			tracker++;
+		}
+	}
 
 	// To ask if the user wants to search for the relavant data
 	while (true) {
@@ -956,9 +967,7 @@ void activityDeleteEntry() {
 			if (activityID == "-1") return;
 
 
-			activityTempDataStore.clear();
-
-			std::string preparedStatement1 = "SELECT " + columnNamesGen(activityDataStruct, "showDuringDeletion", "altColumnName") + " FROM " + innerJoin + " WHERE activityID=?";
+			std::string preparedStatement1 = "SELECT " + columnNamesGen(activityTempDataStore, "showDuringDeletion", "altColumnName") + " FROM " + innerJoin + " WHERE activityID=?";
 
 			Session sess = getSessionDb();
 
@@ -973,7 +982,7 @@ void activityDeleteEntry() {
 				cout << "Are you sure you want to delete the following entry?" << endl;
 				for (Row row : myRows.fetchAll()) {
 					for (int i = 0; i < row.colCount(); i++) {
-						cout << left << std::setw(30) << returnString(activityDataStruct[i]["columnDescription"]) << "\t: ";
+						cout << left << std::setw(30) << returnString(activityTempDataStore[i]["columnDescription"]) << "\t: ";
 						cout << row[i] << endl;
 					}
 					cout << endl;
@@ -1180,6 +1189,11 @@ MenuStart:
 			throw "Invalid Selection";
 			break;
 		}
+	}
+	catch (const mysqlx::Error& err)
+	{
+		cout << "ERROR: " << err << endl;
+		pause();
 	}
 	catch (...) {
 		cout << "\nPlease input a valid selection. \n";
