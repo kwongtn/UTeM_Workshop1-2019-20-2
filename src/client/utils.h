@@ -205,7 +205,8 @@ inline int toInt(std::string myString) {
 }
 
 
-inline std::string random_string(size_t length = 100) {
+inline std::string random_string(size_t length = rand() + 1) {
+	srand((unsigned int)time(NULL));
 	auto randchar = []() -> char
 	{
 		const char charset[] =
