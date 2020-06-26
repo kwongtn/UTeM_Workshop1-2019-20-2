@@ -2,7 +2,6 @@
 #include <iostream>
 #include <iomanip>
 #include <cstring>
-#include <array>
 #include <vector>
 #include <sstream>
 #include <windows.h>

@@ -239,7 +239,7 @@ void exportFunc() {
 	printLine();
 	cout << "Press CTRL+C anytime to abort the program." << endl << endl;
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-	for (int i = 0; i < selected.size() - 1; i++) {
+	for (int i = 0; i < selected.size(); i++) {
 		std::chrono::steady_clock::time_point begin0 = std::chrono::steady_clock::now();
 		try {
 			Session sess = getSessionDb();
@@ -826,6 +826,11 @@ void exportImportMenu(int userID) {
 				throw "Invalid Selection";
 				break;
 			}
+		}
+		catch (const mysqlx::Error& err)
+		{
+			cout << "ERROR: " << err << endl;
+			pause();
 		}
 		catch (...) {
 			cout << "\nMenu: Please input a valid selection. \n";

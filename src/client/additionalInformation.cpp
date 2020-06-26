@@ -55,6 +55,13 @@ void additionalInformation() {
 		cout << "ERROR: " << err << endl;
 	}
 
+	cout << "\n===== Random Number Test =====" << endl;
+	cout << "Generate 10 random numbers:" << endl;
+	srand((unsigned int)time(NULL));
+	for (int i = 0; i < 10; i++) {
+		cout << "> " << rand() << endl;
+	}
+
 	cout << "\nDiagnosis complete. \n";
 
 	pause();

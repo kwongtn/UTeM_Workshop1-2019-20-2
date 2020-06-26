@@ -702,6 +702,11 @@ MenuStart:
 			break;
 		}
 	}
+	catch (const mysqlx::Error& err)
+	{
+		cout << "ERROR: " << err << endl;
+		pause();
+	}
 	catch (...) {
 		cout << "\nMenu: Please input a valid selection. \n";
 		pause();

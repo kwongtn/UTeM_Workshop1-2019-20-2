@@ -136,7 +136,7 @@ int main() {
 	while (true) {
 		heading("Startup diagnostics");
 		printLine();
-		cout << "Running startup diagnostic test...\nIf you see this message for an extended time there may be an issue." << endl;
+		cout << "Running startup diagnostic test...\nIf you see this message for an extended time there may be an issue.\nPress Ctrl + C to abort the application." << endl;
 		if (!testSession()) {
 			cout << "\nThere may be a connection problem. Open diagnostics?" << endl;
 			if (decider()) {
@@ -155,8 +155,9 @@ int main() {
 	keybd_event(VK_RETURN, 0x1c, 0, 0);
 	keybd_event(VK_RETURN, 0x1c, KEYEVENTF_KEYUP, 0);
 	keybd_event(VK_MENU, 0x38, KEYEVENTF_KEYUP, 0);
-	*/
 	while (!login()) {}
+	*/
+Relogin:
 
 	unsigned int selection = 0;
 
@@ -173,7 +174,8 @@ int main() {
 			cout << left << i + 1 << "\t" << returnString(menuEntries[i]) << endl;
 		}
 		cout << endl;
-		cout << left << 10 << "\t" << "Exit" << endl;
+		cout << left << 10 << "\t" << "Logout" << endl;
+		cout << left << -1 << "\t" << "Exit" << endl;
 
 
 		try {
@@ -208,10 +210,13 @@ int main() {
 			else if (selection == SUPERUSER_PASS_INT) {
 				superUser();
 			}
-			else if (selection == 10 || selection == -1) {
+			else if (selection == -1) {
 				cout << "Thank you for using attendance management system by KwongTN." << endl;
 				pause();
 				exit(0);
+			}
+			else if (selection == 10) {
+				goto Relogin;
 			}
 			else {
 				cout << "Default pathway";
@@ -219,6 +224,11 @@ int main() {
 			}
 
 
+		}
+		catch (const mysqlx::Error& err)
+		{
+			cout << "ERROR: " << err << endl;
+			pause();
 		}
 		catch (...) {
 			cout << "\nPlease input a valid selection. \n";

@@ -573,7 +573,7 @@ void attendanceBatchAdd(int userID) {
 					matrixNos.push_back(matrixNo);
 
 				}
-
+				break;
 			}
 			catch (const mysqlx::Error& err)
 			{
@@ -620,8 +620,9 @@ void attendanceBatchAdd(int userID) {
 					.bind(std::to_string(activityID));
 			}
 
-			auto myRows = mySess.execute();
 			cout << "Adding into database...\r";
+			printLine();
+			auto myRows = mySess.execute();
 
 			if (myRows.getAffectedItemsCount() > 0) {
 				cout << myRows.getAffectedItemsCount() << " rows added." << endl;
@@ -1216,6 +1217,11 @@ MenuStart:
 			throw "Invalid Selection";
 			break;
 		}
+	}
+	catch (const mysqlx::Error& err)
+	{
+		cout << "ERROR: " << err << endl;
+		pause();
 	}
 	catch (...) {
 		cout << "\nPlease input a valid selection. \n";

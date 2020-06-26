@@ -66,6 +66,32 @@ json memberDataStruct{
 		{"orderable", true}
 	},*/
 	{
+		{"columnName", "IF(LEFT(matrixNo, 1)='B', 'Degree', IF(LEFT(matrixNo, 1)='D', 'Diploma', IF(LEFT(matrixNo, 1)='M', 'Masters', IF(LEFT(matrixNo, 1)='G', 'Pre-Postgraduate', IF(LEFT(matrixNo, 1)='P', 'PhD', 'Unknown')))))"},
+		{"columnDescription", "Qualification"},
+		{"input", false},
+		{"compulsoryInput", false},
+		{"selected", true},
+		{"searchable", true},
+		{"showDuringDeletion", true},
+		{"outputSizing", 20},
+		{"updatable", false},
+		{"isUnique", false},
+		{"inThisTable", true},
+		{"orderable", true}
+	},{
+		{"columnName", "IF(SUBSTRING(matrixNo, 2, 2)='01', 'FKE', IF(SUBSTRING(matrixNo, 2, 2)='02', 'FKEKK', IF(SUBSTRING(matrixNo, 2, 2)='03', 'FTMK', IF(SUBSTRING(matrixNo, 2, 2)='04', 'FKM', IF(SUBSTRING(matrixNo, 2, 2)='05', 'FKP', IF(SUBSTRING(matrixNo, 2, 2)='06', 'FPTT', IF(SUBSTRING(matrixNo, 2, 2)='07', 'FTKEE', IF(SUBSTRING(matrixNo, 2, 2)='08', 'FTKEE', IF(SUBSTRING(matrixNo, 2, 2)='09', 'FTKMP', 'Unknown')))))))))"},
+		{"columnDescription", "Faculty"},
+		{"input", false},
+		{"compulsoryInput", false},
+		{"selected", true},
+		{"searchable", true},
+		{"showDuringDeletion", true},
+		{"outputSizing", 10},
+		{"updatable", false},
+		{"isUnique", false},
+		{"inThisTable", true},
+		{"orderable", true}
+	},{
 		{"columnName", "hostel"},
 		{"columnDescription", "Hostel"},
 		{"input", true},
@@ -876,6 +902,11 @@ MenuStart:
 			throw "Invalid Selection";
 			break;
 		}
+	}
+	catch (const mysqlx::Error& err)
+	{
+		cout << "ERROR: " << err << endl;
+		pause();
 	}
 	catch (...) {
 		cout << "\nPlease input a valid selection. \n";
