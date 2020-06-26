@@ -582,7 +582,7 @@ void userUpdateEntry() {
 			// Return to menu if user entered "-1"
 			if (matrixNo == "-1") return;
 
-			std::string preparedStatement1 = "SELECT " + columnNamesGen(userDataStruct, "showDuringDeletion", "altColumnName") + " FROM " + innerJoin + " WHERE a.matrixNo=?";
+			std::string preparedStatement1 = "SELECT " + columnNamesGen(userDataStruct, "showDuringDeletion", "altColumnName") + " FROM " + innerJoin + " WHERE b.matrixNo=?";
 
 			Session sess = getSessionDb();
 
@@ -652,7 +652,7 @@ void userUpdateEntry() {
 
 	password = sha256(salt + password);
 
-	std::string preparedStatement2 = "UPDATE " + thisTableName + " SET salt=?, password=?";
+	std::string preparedStatement2 = "UPDATE " + thisTableName + " SET salt=?, pw=?";
 	preparedStatement2 += " WHERE memberID=(SELECT memberID FROM MEMBER WHERE matrixNo=?)";
 
 	// Show current changes
@@ -661,19 +661,30 @@ void userUpdateEntry() {
 	cout << "Are you sure you want to update password?" << endl;
 
 	if (decider()) {
-		Session sess = getSessionDb();
-		auto mySess = sess.sql(preparedStatement2).bind(salt, password, matrixNo);
+		try {
+			Session sess = getSessionDb();
+			auto mySess = sess.sql(preparedStatement2).bind(salt, password, matrixNo);
 
-		auto myRows = mySess.execute();
+			auto myRows = mySess.execute();
 
-		cout << endl;
+			cout << endl;
 
-		if (myRows.getAffectedItemsCount() > 0) {
-			cout << "Update succesful." << endl;
+			if (myRows.getAffectedItemsCount() > 0) {
+				cout << "Update succesful." << endl;
+			}
+			else {
+				cout << "There are probably some errors on the way." << endl;
+			}
+
 		}
-		else {
-			cout << "There are probably some errors on the way." << endl;
+		catch (const mysqlx::Error& err)
+		{
+			cout << "ERROR: " << err << endl;
 		}
+		catch (...) {
+			cout << "Unknown Error";
+		}
+
 	}
 	else {
 		cout << "Decided to NOT update. ";
@@ -765,16 +776,25 @@ void userDeleteEntry() {
 	std::string preparedStatement2 = "DELETE FROM " + thisTableName + " WHERE memberID=(SELECT memberID FROM MEMBER WHERE matrixNo=?)";
 
 	if (decider()) {
-		Session sess = getSessionDb();
-		auto myRows = sess.sql(preparedStatement2).bind(matrixNo).execute();
+		try {
+			Session sess = getSessionDb();
+			auto myRows = sess.sql(preparedStatement2).bind(matrixNo).execute();
 
-		cout << endl;
+			cout << endl;
 
-		if (myRows.getAffectedItemsCount() > 0) {
-			cout << "Deletion succesful. " << myRows.getAffectedItemsCount() << " rows affected." << endl;
+			if (myRows.getAffectedItemsCount() > 0) {
+				cout << "Deletion succesful. " << myRows.getAffectedItemsCount() << " rows affected." << endl;
+			}
+			else {
+				cout << "There are probably some errors on the way." << endl;
+			}
 		}
-		else {
-			cout << "There are probably some errors on the way." << endl;
+		catch (const mysqlx::Error& err)
+		{
+			cout << "ERROR: " << err << endl;
+		}
+		catch (...) {
+			cout << "Unknown Error";
 		}
 	}
 	else {
@@ -841,6 +861,11 @@ MenuStart:
 			throw "Invalid Selection";
 			break;
 		}
+	}
+	catch (const mysqlx::Error& err)
+	{
+		cout << "ERROR: " << err << endl;
+		pause();
 	}
 	catch (...) {
 		cout << "\nPlease input a valid selection. \n";
