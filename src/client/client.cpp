@@ -51,7 +51,7 @@ bool login() {
 		}
 		else {
 			// Write into salt variable
-			std::stringstream ss1, ss2;
+			std::stringstream ss1;
 
 			auto myRow = myRows.fetchOne();
 
