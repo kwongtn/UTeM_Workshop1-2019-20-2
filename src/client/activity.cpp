@@ -1153,7 +1153,7 @@ MenuStart:
 		cout << "Please input your selection: " << endl;
 		selection = inputInt();
 		if (selection > menuEntries.size() || selection < 0) {
-			if (selection != 10) {
+			if (selection != 10 && selection != -1) {
 				throw "Error";
 			}
 		}
