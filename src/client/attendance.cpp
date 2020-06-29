@@ -558,7 +558,7 @@ void attendanceBatchAdd(int userID) {
 					if (decider()) {
 						memberAddEntry();
 					}
-					continue;
+					break;
 
 				}
 				else {
