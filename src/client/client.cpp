@@ -156,8 +156,8 @@ int main() {
 	keybd_event(VK_RETURN, 0x1c, KEYEVENTF_KEYUP, 0);
 	keybd_event(VK_MENU, 0x38, KEYEVENTF_KEYUP, 0);
 	*/
-	while (!login()) {}
 Relogin:
+	while (!login()) {}
 
 	unsigned int selection = 0;
 
